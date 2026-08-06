@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>ניהול ניקיון אתרים · עזר מציון</title>
+<style>
+:root{
+  --brand:#0aa2e0; --brand-d:#0679a8;
+  --brand-tint:#eaf6fd; --brand-tint2:#d8ecf8;
+  --ink:#12222e; --muted:#6b7f8c;
+  --bg:#f2f6f9; --card:#fff; --line:#dde7ee;
+  --ok:#12a45c; --ok-l:#3ecb87; --warn:#e8a017; --bad:#d9453d;
+  --navy:#1565c0;
+  --shadow:0 1px 3px rgba(18,34,46,.08),0 6px 20px rgba(18,34,46,.06);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Segoe UI",Rubik,Arial,"Noto Sans Hebrew",sans-serif;font-size:16px;line-height:1.5}
+button,input,select,textarea{font-family:inherit;font-size:inherit}
+.hide{display:none!important}
+
+/* ===== Header ===== */
+header{background:linear-gradient(135deg,#0b7fb5,#0aa2e0);color:#fff;padding:10px 16px;
+  position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.hrow{display:flex;align-items:center;gap:12px;max-width:1360px;margin:0 auto}
+.logo{font-weight:700;font-size:18px;letter-spacing:-.3px;white-space:nowrap}
+.logo span{opacity:.75;font-weight:400;font-size:13px}
+.hspace{flex:1}
+.hbtn{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);color:#fff;
+  padding:7px 13px;border-radius:8px;cursor:pointer;font-size:14px}
+.hbtn:hover{background:rgba(255,255,255,.26)}
+.ctx{font-size:13px;opacity:.92;text-align:left;line-height:1.3}
+.ctx b{display:block;font-size:15px}
+
+/* ===== Layout ===== */
+.wrap{max-width:1360px;margin:0 auto;padding:18px 20px 80px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+  padding:18px;margin-bottom:16px}
+h1{font-size:27px;margin:0 0 6px;font-weight:700;letter-spacing:-.4px}
+h2{font-size:19px;margin:0 0 13px;font-weight:700;letter-spacing:-.2px;
+   padding-right:13px;border-right:4px solid var(--brand);line-height:1.25}
+h3{font-size:15px;margin:0 0 8px;font-weight:700}
+.sub{color:var(--muted);font-size:14.5px;margin:0 0 18px;max-width:70ch}
+
+/* ===== Tabs ===== */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;background:var(--brand-tint2);padding:5px;border-radius:11px}
+.tab{padding:9px 15px;border-radius:8px;border:0;background:transparent;cursor:pointer;color:var(--muted);font-weight:500}
+.tab.on{background:#fff;color:var(--brand-d);box-shadow:var(--shadow);font-weight:600}
+
+/* ===== Buttons ===== */
+.btn{background:var(--brand);color:#fff;border:0;padding:11px 20px;border-radius:9px;cursor:pointer;font-weight:600}
+.btn:hover{background:var(--brand-d)}
+.btn.g{background:#eef4f8;color:var(--ink);border:1px solid var(--line)}
+.btn.g:hover{background:#e2ecf3}
+.btn.sm{padding:7px 13px;font-size:14px;font-weight:500}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ===== Site picker ===== */
+.finder{display:grid;grid-template-columns:1.6fr 1fr 1.3fr auto;gap:12px;align-items:end;
+  background:#f7fafc;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:16px}
+.finder .fld{min-width:0}
+.finder input,.finder select{width:100%}
+.finder input[type=text]{background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7f8c' stroke-width='2'><circle cx='11' cy='11' r='7'/><path d='M20 20l-3.5-3.5'/></svg>") no-repeat 10px center;padding-right:34px}
+.foundTxt{font-size:13px;color:var(--muted);margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.pick{background:#fff;border:2px solid var(--line);border-radius:13px;padding:16px 18px;cursor:pointer;text-align:right;transition:.15s;display:flex;align-items:center;gap:13px}
+.pick:hover{border-color:var(--brand);transform:translateY(-2px);box-shadow:var(--shadow)}
+.pick .mk{width:38px;height:38px;border-radius:10px;background:var(--brand-tint);color:var(--brand-d);flex:none;
+  display:flex;align-items:center;justify-content:center;font-size:19px}
+.pick:hover .mk{background:var(--brand);color:#fff}
+.pick .tx{min-width:0}
+.pick .city{font-size:12px;color:var(--brand-d);font-weight:700;letter-spacing:.01em}
+.pick b{display:block;font-size:16px;margin:1px 0 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pick small{color:var(--muted);font-size:12.5px}
+@media(max-width:820px){.finder{grid-template-columns:1fr 1fr;}.finder .fld:first-child{grid-column:1/-1}}
+.roleRow{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.roleBox{flex:1;min-width:220px;border:2px solid var(--line);border-radius:13px;padding:24px;cursor:pointer;text-align:center;background:#fff;transition:.15s}
+.roleBox:hover{border-color:var(--brand);background:#f5fafd;transform:translateY(-2px);box-shadow:var(--shadow)}
+.roleBox .ic{font-size:30px}
+.roleBox b{display:block;font-size:17px;margin:6px 0 3px}
+.roleBox small{color:var(--muted)}
+
+/* ===== Daily plan ===== */
+.dayhead{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.dayhead .d1{font-size:20px;font-weight:700}
+.dayhead .d2{color:var(--muted);font-size:14px}
+.navbtn{border:1px solid var(--line);background:#fff;border-radius:8px;width:36px;height:36px;cursor:pointer;
+  color:var(--muted);display:flex;align-items:center;justify-content:center;padding:0}
+.navbtn:hover{border-color:var(--brand);color:var(--brand)}
+.navbtn svg{width:19px;height:19px}
+/* החצים מוגדרים ידנית ואסור שיעברו היפוך אוטומטי בכיוון RTL */
+.navbtn svg{direction:ltr}
+
+.prog{height:11px;background:var(--brand-tint2);border-radius:99px;overflow:hidden;margin:6px 0}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),var(--ok-l));transition:width .35s}
+.progtxt{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+
+/* בדסקטופ: רשימת האלמנטים בכמה עמודות כדי לצמצם גלילה */
+#cList{display:grid;grid-template-columns:1fr;gap:11px;align-items:start}
+@media(min-width:1000px){#cList{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1500px){#cList{grid-template-columns:repeat(3,1fr)}}
+.elem{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.elemH{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;background:#f8fbfd;user-select:none}
+.elemH:hover{background:var(--brand-tint)}
+.elemH .code{background:var(--brand);color:#fff;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700;min-width:36px;text-align:center}
+.elemH .nm{font-weight:600;flex:1}
+.elemH .cnt{font-size:13px;color:var(--muted)}
+.elemH .chev{color:var(--muted);transition:.2s}
+.elem.open .chev{transform:rotate(90deg)}
+.elemB{display:none;padding:4px 0}
+.elem.open .elemB{display:block}
+.elem.done .elemH .cnt{color:var(--ok);font-weight:600}
+.elemH .multi{font-size:11.5px;color:var(--brand-d);background:var(--brand-tint);
+  border-radius:99px;padding:2px 9px;font-weight:600;white-space:nowrap}
+
+/* סרגל החלל: טאבים לחללים זהים + סימון קבוצתי */
+.gbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 13px;
+  background:#f8fbfd;border-bottom:1px solid var(--line)}
+.etabs{display:flex;gap:5px;flex-wrap:wrap;flex:1;min-width:0}
+.etab{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 10px;cursor:pointer;
+  font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:center;font-weight:600}
+.etab:hover{border-color:var(--brand)}
+.etab.on{border-color:var(--brand);background:var(--brand);color:#fff}
+.etab i{font-style:normal;font-size:11px;opacity:.85;font-weight:500}
+.etab.full{border-color:var(--ok);color:var(--ok)}
+.etab.full.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.gact{display:flex;gap:6px;flex-wrap:wrap}
+.gact .btn{white-space:nowrap}
+
+.task{display:flex;align-items:flex-start;gap:11px;padding:11px 15px;border-top:1px solid #f0f5f8;cursor:pointer}
+.task:hover{background:#fafcfe}
+.task .box{width:23px;height:23px;border:2px solid #c3d3de;border-radius:6px;flex:none;display:flex;
+  align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;margin-top:1px;transition:.15s}
+.task.on .box{background:var(--ok);border-color:var(--ok)}
+.task.on .lbl{text-decoration:line-through;color:var(--muted)}
+.task .lbl{flex:1}
+.badge{font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600;white-space:nowrap;flex:none;margin-top:2px}
+.b-daily{background:#e3f2fd;color:#1565c0}
+.b-weekly{background:#e8f5e9;color:#2e7d32}
+.b-monthly{background:#fff3e0;color:#e65100}
+.b-semi{background:#f3e5f5;color:#7b1fa2}
+.b-carry{background:var(--bad);color:#fff}
+
+/* ===== Stats / tables ===== */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;border-top:3px solid var(--brand)}
+.stat .n{font-size:28px;font-weight:700;line-height:1.1;color:var(--brand-d)}
+.stat .l{font-size:13px;color:var(--muted);margin-top:3px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line)}
+th{background:#f5f9fc;font-weight:600;color:var(--muted);font-size:13px;position:sticky;top:0}
+tbody tr:hover{background:#fafcfe}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600}
+.p-ok{background:#e6f7ee;color:var(--ok)}
+.p-mid{background:#fdf3e0;color:#b57a00}
+.p-bad{background:#fdecec;color:var(--bad)}
+.scroll{max-height:460px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+
+select,input[type=text],input[type=date],input[type=number]{
+  padding:8px 11px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+label.f{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
+
+.note{background:#fff8e6;border:1px solid #f5dfa8;border-radius:10px;padding:12px 14px;font-size:14px;margin-bottom:14px}
+.note.blue{background:#eaf6fd;border-color:#b9e0f4}
+.note.red{background:#fdeeee;border-color:#f3c2c0}
+
+.empty{text-align:center;padding:44px 16px;color:var(--muted)}
+.empty .ic{font-size:42px;opacity:.35;margin-bottom:8px}
+
+/* עריכת משימות בתכנית */
+.addbox{background:var(--brand-tint);border:1px solid #b9e0f4;border-radius:11px;padding:13px;margin-bottom:14px}
+.twins{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--muted);margin-bottom:11px;cursor:pointer}
+.twins input{width:17px;height:17px;accent-color:var(--brand);cursor:pointer}
+.tedit{width:100%;border:1px solid transparent;background:transparent;border-radius:7px;padding:6px 8px;color:var(--ink)}
+.tedit:hover{border-color:var(--line);background:#fbfdfe}
+.tedit:focus{border-color:var(--brand);background:#fff;outline:none}
+.del{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:7px;
+  width:28px;height:28px;cursor:pointer;line-height:1}
+.del:hover{background:#fdecec;border-color:var(--bad);color:var(--bad)}
+.lnk{border:0;background:0;color:var(--brand-d);cursor:pointer;font-size:13px;text-decoration:underline;padding:2px 4px}
+.xn{background:var(--brand-tint);color:var(--brand-d);border-radius:99px;padding:1px 8px;font-size:11.5px;font-weight:700}
+tr.detail td{background:#f8fbfd}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;padding:4px 0}
+.drow{display:flex;align-items:center;gap:7px;font-size:13px}
+.drow b{min-width:34px;color:var(--brand-d)}
+.drow select{padding:4px 7px;font-size:13px}
+
+/* קטגוריות מועדים */
+.catgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px}
+.cat{display:flex;align-items:center;gap:11px;border:2px solid var(--line);border-radius:11px;
+  padding:13px 14px;cursor:pointer;background:#fff;transition:.15s}
+.cat:hover{border-color:var(--brand)}
+.cat.on{border-color:var(--bad);background:#fdf7f7}
+.cat input{width:19px;height:19px;flex:none;accent-color:var(--bad);cursor:pointer}
+.cat span:nth-of-type(1){flex:1;min-width:0}
+.cat b{display:block;font-size:15px}
+.cat small{color:var(--muted);font-size:12.5px;display:block;line-height:1.35}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:#eef4f8;border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:13px;display:flex;align-items:center;gap:7px}
+.chip button{border:0;background:0;color:var(--bad);cursor:pointer;font-size:15px;line-height:1;padding:0}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(120px);
+  background:var(--ink);color:#fff;padding:12px 22px;border-radius:10px;z-index:200;transition:.3s;box-shadow:var(--shadow)}
+.toast.on{transform:translateX(-50%) translateY(0)}
+
+.stick{position:fixed;bottom:0;right:0;left:0;background:#fff;border-top:1px solid var(--line);
+  padding:11px 16px;box-shadow:0 -3px 14px rgba(0,0,0,.07);z-index:40}
+.stickIn{max-width:1360px;margin:0 auto;display:flex;align-items:center;gap:14px}
+.stickIn .t{flex:1;font-size:14px}
+
+@media(max-width:640px){
+  .wrap{padding:14px 11px 90px}
+  .card{padding:14px;border-radius:12px}
+  .logo span{display:none}
+  h1{font-size:19px}
+  .hrow{gap:8px}
+}
+/* ===== פלט הדפסה / PDF ===== */
+#printArea{display:none}
+@media print{
+  body{background:#fff}
+  body > *{display:none!important}
+  body > #printArea{display:block!important}
+  @page{size:A4 portrait;margin:11mm}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+#printArea{font-size:11pt;color:#000}
+.psheet{page-break-after:always}
+.psheet:last-child{page-break-after:auto}
+.phead{border-bottom:2.5px solid #000;padding-bottom:7px;margin-bottom:11px;
+  display:flex;align-items:flex-end;gap:14px}
+.phead .pt1{font-size:16pt;font-weight:700;line-height:1.2}
+.phead .pt2{font-size:10pt;color:#333;margin-top:2px}
+.phead .pmeta{margin-right:auto;text-align:left;font-size:10pt;line-height:1.5}
+.phead .pmeta b{font-size:13pt}
+.psum{background:#f0f0f0;border:1px solid #bbb;padding:6px 10px;font-size:9.5pt;margin-bottom:11px}
+.pnote{border:2px solid #000;padding:14px;text-align:center;font-size:13pt;font-weight:700;margin:22px 0}
+.pgrp{margin-bottom:13px;page-break-inside:avoid}
+.pgrp > h3{font-size:11.5pt;font-weight:700;margin:0 0 5px;background:#e4e4e4;
+  border-right:4px solid #000;padding:4px 9px}
+table.pt{width:100%;border-collapse:collapse;font-size:9.5pt}
+table.pt th,table.pt td{border:1px solid #999;padding:3.5px 6px;text-align:right;vertical-align:middle}
+table.pt th{background:#efefef;font-size:8.5pt;font-weight:700}
+table.pt td.pc,table.pt th.pc{text-align:center;width:30px}
+table.pt td.pf,table.pt th.pf{width:62px;text-align:center;font-size:8pt;color:#444}
+.bx{display:inline-block;width:12px;height:12px;border:1.4px solid #333;border-radius:2px}
+.dn{font-weight:700;font-size:11pt}
+.na{color:#bbb}
+.pcarry{font-size:7.5pt;border:1px solid #000;border-radius:8px;padding:0 4px;margin-right:4px}
+.psign{margin-top:16px;border-top:1.5px solid #000;padding-top:9px;font-size:9.5pt;
+  display:flex;gap:26px;flex-wrap:wrap;page-break-inside:avoid}
+.psign div{flex:1;min-width:150px}
+.psign span{display:inline-block;border-bottom:1px solid #666;min-width:105px;margin-right:5px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hrow">
+    <div class="logo">עזר מציון <span>· ניהול ניקיון אתרים</span></div>
+    <div class="hspace"></div>
+    <div class="ctx" id="ctx"></div>
+    <button class="hbtn" id="btnSwitch" onclick="goHome()">החלפה</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- ============ HOME ============ -->
+  <div id="vHome">
+    <div class="card">
+      <h1>בחירת אתר</h1>
+      <p class="sub">חפש אתר לפי שם, או בחר עיר וכתובת מהרשימות</p>
+      <div class="finder">
+        <div class="fld">
+          <label class="f">חיפוש</label>
+          <input type="text" id="qSearch" placeholder="שם עיר, רחוב או מספר בית…" oninput="renderHome()" autocomplete="off">
+        </div>
+        <div class="fld">
+          <label class="f">עיר</label>
+          <select id="qCity" onchange="onCityChange()"></select>
+        </div>
+        <div class="fld">
+          <label class="f">כתובת</label>
+          <select id="qAddr" onchange="renderHome()"></select>
+        </div>
+        <button class="btn g sm" onclick="clearFinder()">ניקוי</button>
+      </div>
+      <div class="foundTxt" id="foundTxt"></div>
+      <div class="grid" id="siteGrid"></div>
+    </div>
+  </div>
+
+  <!-- ============ ROLE ============ -->
+  <div id="vRole" class="hide">
+    <div class="card">
+      <h1 id="roleSite"></h1>
+      <p class="sub">בחר תפקיד</p>
+      <div class="roleRow">
+        <div class="roleBox" onclick="enter('cleaner')">
+          <div class="ic">🧹</div><b>מנקה</b><small>תכנית העבודה שלי להיום</small>
+        </div>
+        <div class="roleBox" onclick="enter('super')">
+          <div class="ic">📋</div><b>מפקח ניקיון</b><small>הגדרת תכנית, בקרה ודוחות</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CLEANER ============ -->
+  <div id="vClean" class="hide">
+    <div class="card">
+      <div class="dayhead">
+        <!-- ב-RTL: "אתמול" מימין עם חץ ימינה, "מחר" משמאל עם חץ שמאלה.
+             נעשה ב-SVG כי התווים ‹ › עוברים היפוך אוטומטי (bidi mirroring) בכיוון RTL. -->
+        <button class="navbtn" onclick="shiftDay(-1)" title="היום הקודם" aria-label="היום הקודם">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+        <div>
+          <div class="d1" id="cDay"></div>
+          <div class="d2" id="cDate"></div>
+        </div>
+        <button class="navbtn" onclick="shiftDay(1)" title="היום הבא" aria-label="היום הבא">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <div style="flex:1"></div>
+        <button class="btn g sm" id="btnExpand" onclick="toggleAllGroups()">פתיחת הכל</button>
+        <button class="btn g sm" onclick="printCleanerDay()">🖨 הדפסה / PDF</button>
+        <button class="btn g sm" onclick="setDay(todayStr())">היום</button>
+      </div>
+      <div id="cClosed"></div>
+      <div id="cProgWrap">
+        <div class="prog"><i id="cBar" style="width:0%"></i></div>
+        <div class="progtxt"><span id="cTxt"></span><span id="cPct"></span></div>
+      </div>
+    </div>
+    <div id="cList"></div>
+  </div>
+
+  <!-- ============ SUPERVISOR ============ -->
+  <div id="vSup" class="hide">
+    <div class="tabs">
+      <button class="tab on" onclick="supTab('dash',this)">לוח בקרה</button>
+      <button class="tab" onclick="supTab('plan',this)">תכנית עבודה</button>
+      <button class="tab" onclick="supTab('days',this)">ימים ללא עבודה</button>
+      <button class="tab" onclick="supTab('rep',this)">דוחות</button>
+    </div>
+
+    <div id="tDash">
+      <div class="stats" id="dStats"></div>
+      <div class="card">
+        <h2>הדפסת תכנית יומית</h2>
+        <p class="sub">גיליון מודפס לחלוקה למנקים, או שמירה כ‑PDF (בדיאלוג ההדפסה יש לבחור יעד "שמירה כ‑PDF").</p>
+        <div class="row" style="margin:0">
+          <div><label class="f">אתר</label>
+            <select id="prSite"><option value="*">כל האתרים</option></select></div>
+          <div><label class="f">תאריך</label><input type="date" id="prDate"></div>
+          <button class="btn sm" onclick="printSupDay()">🖨 הדפסה / PDF</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>ביצוע לפי אתר · היום</h2>
+        <div id="dToday"></div>
+      </div>
+      <div class="card">
+        <h2>14 הימים האחרונים</h2>
+        <div class="scroll"><table id="dHist"></table></div>
+      </div>
+    </div>
+
+    <div id="tPlan" class="hide">
+      <div class="card">
+        <h2>תכנית העבודה של האתר</h2>
+        <p class="sub">משימות יומיות מופיעות בכל יום עבודה. משימות שבועיות / חודשיות / חצי-שנתיות מפוזרות אוטומטית על ימי העבודה כדי לאזן עומס — ניתן לשנות כל שיבוץ ידנית.</p>
+        <div class="row">
+          <div><label class="f">אתר</label><select id="pSite" onchange="renderPlan()"></select></div>
+          <div><label class="f">תדירות</label>
+            <select id="pFreq" onchange="renderPlan()">
+              <option value="daily">יומי</option>
+              <option value="weekly" selected>שבועי</option>
+              <option value="monthly">חודשי</option>
+              <option value="semiannual">חצי-שנתי</option>
+            </select></div>
+          <div><label class="f">סינון חלל</label><select id="pSpace" onchange="renderPlan()"></select></div>
+          <div style="flex:1"></div>
+          <button class="btn sm" onclick="toggleAddForm()">+ הוספת משימה</button>
+          <button class="btn g sm" onclick="autoDistribute()">פיזור אוטומטי מחדש</button>
+          <button class="btn g sm" onclick="restoreTasks(+document.getElementById('pSite').value)">שחזור מהאקסל</button>
+        </div>
+
+        <div class="addbox hide" id="pAdd">
+          <div class="row" style="margin:0">
+            <div><label class="f">סוג חלל</label><select id="aSpace" onchange="fillAddEls()"></select></div>
+            <div><label class="f">חלל</label><select id="aEl"></select></div>
+            <div><label class="f">תדירות</label>
+              <select id="aFreq">
+                <option value="daily">יומי</option>
+                <option value="weekly">שבועי</option>
+                <option value="monthly">חודשי</option>
+                <option value="semiannual">חצי-שנתי</option>
+              </select></div>
+            <div style="flex:1;min-width:220px"><label class="f">תיאור המשימה</label>
+              <input type="text" id="aText" placeholder="לדוגמה: ניקוי מסנני מזגן" style="width:100%"></div>
+            <button class="btn sm" onclick="submitAdd()">הוספה</button>
+            <button class="btn g sm" onclick="toggleAddForm()">ביטול</button>
+          </div>
+        </div>
+
+        <div class="note blue" id="pLoad"></div>
+        <label class="twins"><input type="checkbox" id="pTwins" checked>
+          <span>החל עריכה ומחיקה על כל החללים מאותו סוג (למשל כל 9 חללי "משרד קטן")</span></label>
+        <div class="scroll"><table id="pTbl"></table></div>
+      </div>
+    </div>
+
+    <div id="tDays" class="hide">
+      <div class="card">
+        <h2>אילו מועדים סוגרים את האתרים</h2>
+        <p class="sub">ימי העבודה הם ראשון–שישי. המועדים מחושבים אוטומטית מלוח השנה העברי לכל שנה. סמנו אילו סוגי מועדים הם ימים ללא עבודה — משימות שנפלו על יום סגור יעברו אוטומטית ליום העבודה הבא ויסומנו כ"הועבר".</p>
+        <div id="catList"></div>
+      </div>
+
+      <div class="card">
+        <h2>מועדים בשנה הקרובה</h2>
+        <p class="sub">כל מועד ניתן לשינוי ידני — אפשר לסגור מועד שאינו מסומן בקטגוריה, או לפתוח מועד ספציפי לעבודה.</p>
+        <div class="scroll"><table id="holTbl"></table></div>
+      </div>
+
+      <div class="card">
+        <h2>ימים ללא עבודה שנוספו ידנית</h2>
+        <p class="sub">לימים שאינם מועדים — יום עיון, עבודות באתר, אירוע ארגוני וכדומה.</p>
+        <div class="row">
+          <div><label class="f">תאריך</label><input type="date" id="offDate"></div>
+          <div style="flex:1;min-width:200px"><label class="f">תיאור</label><input type="text" id="offName" placeholder="לדוגמה: יום עיון ארגוני" style="width:100%"></div>
+          <button class="btn sm" onclick="addOff()">הוספה</button>
+        </div>
+        <div id="offList"></div>
+      </div>
+    </div>
+
+    <div id="tRep" class="hide">
+      <div class="card">
+        <h2>דוח ביצוע מפורט</h2>
+        <div class="row">
+          <div><label class="f">אתר</label><select id="rSite" onchange="renderRep()"></select></div>
+          <div><label class="f">מתאריך</label><input type="date" id="rFrom" onchange="renderRep()"></div>
+          <div><label class="f">עד תאריך</label><input type="date" id="rTo" onchange="renderRep()"></div>
+          <div style="flex:1"></div>
+          <button class="btn g sm" onclick="exportCSV()">ייצוא ל‑CSV</button>
+        </div>
+        <div class="stats" id="rStats"></div>
+        <h3>משימות שלא בוצעו — לפי שכיחות</h3>
+        <div class="scroll"><table id="rTbl"></table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="stick hide" id="stick">
+  <div class="stickIn">
+    <div class="t" id="stickTxt"></div>
+    <button class="btn" onclick="finishDay()">סיום ואישור היום</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="printArea"></div>
+
+<script>
+/* ================= DATA ================= */
+const DATA = {"sites": [{"name": "בני ברק גוטמכר 8", "city": "בני ברק", "address": "גוטמכר 8", "elements": [{"code": "A1", "space": "מטבח", "tasks": {"daily": ["ריקון פחים", "ניקוי פנים וחוץ של פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי משטחים וציוד משותף", "ניקוי דלתות וידיות", "ניקוי קירות חרסינה", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות", "ניקוי כיסאות", "מילוי מגבות נייר", "מילוי סבון", "ניקוי כיורים, ברזים ומראות", "ניקוי תעלות ורשתות ניקוז", "ניקוי מקרר חיצוני", "ניקוי מיקרוגל", "ניקוי חיצוני של מדיח כלים", "ניקוי כיריים", "ניקוי תנור", "שטיפת כלי מטבח", "ניקוי מכונת קפה"], "weekly": ["ניקוי תחתית משטחי עבודה", "ניקוי יסודי של קירות", "ניקוי וילונות", "ניקוי חיצוני של ארונות", "ניקוי פנימי של מדיח כלים", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי מלא של חלונות", "ניקוי פנימי של ארונות", "ניקוי יסודי של רשתות ניקוז", "ניקוי מקרר פנימי"], "semiannual": []}}, {"code": "C1", "space": "פינת קפה", "tasks": {"daily": ["ריקון פחים", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי משטחים וציוד משותף", "ניקוי דלתות וידיות", "ניקוי מתקני שתייה / תמי 4", "ניקוי חלונות", "מילוי מגבות נייר", "מילוי סבון", "ניקוי מקרר חיצוני", "ניקוי מכונת קפה"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי תחתית משטחי עבודה", "ניקוי וילונות", "ניקוי חיצוני של ארונות"], "monthly": ["ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות", "ניקוי מקרר פנימי"], "semiannual": []}}, {"code": "D1", "space": "מקרר", "tasks": {"daily": ["ניקוי דלתות וידיות", "ניקוי מקרר חיצוני"], "weekly": [], "monthly": ["ניקוי מקרר פנימי"], "semiannual": []}}, {"code": "D2", "space": "מקרר", "tasks": {"daily": ["ניקוי דלתות וידיות", "ניקוי מקרר חיצוני"], "weekly": [], "monthly": ["ניקוי מקרר פנימי"], "semiannual": []}}, {"code": "D3", "space": "מקרר", "tasks": {"daily": ["ניקוי דלתות וידיות", "ניקוי מקרר חיצוני"], "weekly": [], "monthly": ["ניקוי מקרר פנימי"], "semiannual": []}}, {"code": "E1", "space": "מחסן / חדר שירות", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת"], "weekly": ["שטיפת רצפה", "ניקוי משטחי עבודה (אם קיים)", "ניקוי מדפים וציוד תפעולי", "ניקוי דלתות וידיות", "ניקוי חלונות", "ניקוי וילונות", "ניקוי חיצוני של ארונות", "ניקוי פנימי של ארונות ותאי אחסון"], "monthly": ["ניקוי יסודי של דלתות וידיות", "ניקוי פנים וחוץ של פחים", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": ["ניקוי גופי תאורה"]}}, {"code": "F1", "space": "משרד קטן", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות", "ניקוי טלפון ומסכים (אם קיים)"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות"], "semiannual": ["ניקוי עמוק של שטיחים", "ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "F2", "space": "משרד קטן", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות", "ניקוי טלפון ומסכים (אם קיים)"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות"], "semiannual": ["ניקוי עמוק של שטיחים", "ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "G1", "space": "משרד גדול", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות", "ניקוי טלפון ומסכים (אם קיים)"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות"], "semiannual": ["ניקוי עמוק של שטיחים", "ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "H1", "space": "שירותים ללא קהל", "tasks": {"daily": ["ריקון פחים", "שטיפת רצפה", "ניקוי דלתות וידיות", "ניקוי חלונות", "ניקוי ומילוי מתקני נייר", "ניקוי ומילוי מתקני סבון", "ניקוי אסלות", "ניקוי משתנות (אם קיים)", "ניקוי כיורים, ברזים ומראות", "ניקוי נקודתי של מחיצות תאים ודלתות תאים"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של קירות", "ניקוי וילונות"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": []}}, {"code": "H2", "space": "שירותים ללא קהל", "tasks": {"daily": ["ריקון פחים", "שטיפת רצפה", "ניקוי דלתות וידיות", "ניקוי חלונות", "ניקוי ומילוי מתקני נייר", "ניקוי ומילוי מתקני סבון", "ניקוי אסלות", "ניקוי משתנות (אם קיים)", "ניקוי כיורים, ברזים ומראות", "ניקוי נקודתי של מחיצות תאים ודלתות תאים"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של קירות", "ניקוי וילונות"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": []}}, {"code": "H3", "space": "שירותים ללא קהל", "tasks": {"daily": ["ריקון פחים", "שטיפת רצפה", "ניקוי דלתות וידיות", "ניקוי חלונות", "ניקוי ומילוי מתקני נייר", "ניקוי ומילוי מתקני סבון", "ניקוי אסלות", "ניקוי משתנות (אם קיים)", "ניקוי כיורים, ברזים ומראות", "ניקוי נקודתי של מחיצות תאים ודלתות תאים"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של קירות", "ניקוי וילונות"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": []}}, {"code": "I1", "space": "מעון (תינוקות ופעוטות מגיל לידה עד 3)", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי סלסילות צעצועים ומשטחים נוספים", "ניקוי דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי כיסאות", "ניקוי מזרני רצפה"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי וילונות", "ניקוי של ספות", "ניקוי חיצוני של ארונות", "ניקוי פנימי של ארונות ותאי אחסון", "ניקוי צעצועים ומשחקים", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה"], "semiannual": ["ניקוי עמוק של ספות"]}}, {"code": "I2", "space": "מעון (תינוקות ופעוטות מגיל לידה עד 3)", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי סלסילות צעצועים ומשטחים נוספים", "ניקוי דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי כיסאות", "ניקוי מזרני רצפה"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי וילונות", "ניקוי של ספות", "ניקוי חיצוני של ארונות", "ניקוי פנימי של ארונות ותאי אחסון", "ניקוי צעצועים ומשחקים", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה"], "semiannual": ["ניקוי עמוק של ספות"]}}, {"code": "J1", "space": "פינת החתלה", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי משטחים וציוד משותף", "ניקוי דלתות וידיות", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי כיסאות", "ניקוי ומילוי מתקני נייר", "ניקוי ומילוי מתקני סבון", "ניקוי אסלות", "ניקוי משתנות (אם קיים)", "ניקוי כיורים, ברזים ומראות", "ניקוי נקודתי של מחיצות תאים ודלתות תאים"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי וילונות", "ניקוי חיצוני של ארונות", "ניקוי פנימי של ארונות ותאי אחסון", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה"], "semiannual": []}}, {"code": "J2", "space": "פינת החתלה", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי משטחים וציוד משותף", "ניקוי דלתות וידיות", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי כיסאות", "ניקוי ומילוי מתקני נייר", "ניקוי ומילוי מתקני סבון", "ניקוי אסלות", "ניקוי משתנות (אם קיים)", "ניקוי כיורים, ברזים ומראות", "ניקוי נקודתי של מחיצות תאים ודלתות תאים"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי וילונות", "ניקוי חיצוני של ארונות", "ניקוי פנימי של ארונות ותאי אחסון", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה"], "semiannual": []}}, {"code": "J3", "space": "פינת החתלה", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי משטחים וציוד משותף", "ניקוי דלתות וידיות", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי כיסאות", "ניקוי ומילוי מתקני נייר", "ניקוי ומילוי מתקני סבון", "ניקוי אסלות", "ניקוי משתנות (אם קיים)", "ניקוי כיורים, ברזים ומראות", "ניקוי נקודתי של מחיצות תאים ודלתות תאים"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי וילונות", "ניקוי חיצוני של ארונות", "ניקוי פנימי של ארונות ותאי אחסון", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה"], "semiannual": []}}, {"code": "J4", "space": "פינת החתלה", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי משטחים וציוד משותף", "ניקוי דלתות וידיות", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי כיסאות", "ניקוי ומילוי מתקני נייר", "ניקוי ומילוי מתקני סבון", "ניקוי אסלות", "ניקוי משתנות (אם קיים)", "ניקוי כיורים, ברזים ומראות", "ניקוי נקודתי של מחיצות תאים ודלתות תאים"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי וילונות", "ניקוי חיצוני של ארונות", "ניקוי פנימי של ארונות ותאי אחסון", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה"], "semiannual": []}}, {"code": "K1", "space": "שירותים של גן / מעון", "tasks": {"daily": ["ריקון פחים", "שטיפת רצפה", "ניקוי דלתות וידיות", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי ומילוי מתקני נייר", "ניקוי ומילוי מתקני סבון", "ניקוי אסלות", "ניקוי משתנות (אם קיים)", "ניקוי כיורים, ברזים ומראות", "ניקוי נקודתי של מחיצות תאים ודלתות תאים"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי וילונות"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": []}}, {"code": "K2", "space": "שירותים של גן / מעון", "tasks": {"daily": ["ריקון פחים", "שטיפת רצפה", "ניקוי דלתות וידיות", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי ומילוי מתקני נייר", "ניקוי ומילוי מתקני סבון", "ניקוי אסלות", "ניקוי משתנות (אם קיים)", "ניקוי כיורים, ברזים ומראות", "ניקוי נקודתי של מחיצות תאים ודלתות תאים"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי וילונות"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": []}}, {"code": "K3", "space": "שירותים של גן / מעון", "tasks": {"daily": ["ריקון פחים", "שטיפת רצפה", "ניקוי דלתות וידיות", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי ומילוי מתקני נייר", "ניקוי ומילוי מתקני סבון", "ניקוי אסלות", "ניקוי משתנות (אם קיים)", "ניקוי כיורים, ברזים ומראות", "ניקוי נקודתי של מחיצות תאים ודלתות תאים"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי וילונות"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": []}}, {"code": "K4", "space": "שירותים של גן / מעון", "tasks": {"daily": ["ריקון פחים", "שטיפת רצפה", "ניקוי דלתות וידיות", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי ומילוי מתקני נייר", "ניקוי ומילוי מתקני סבון", "ניקוי אסלות", "ניקוי משתנות (אם קיים)", "ניקוי כיורים, ברזים ומראות", "ניקוי נקודתי של מחיצות תאים ודלתות תאים"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי וילונות"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": []}}, {"code": "L1", "space": "חצר / גינת משחקים", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "ניקוי שבילים ומשטחים מרוצפים", "ניקוי משטחי עבודה (אם קיים)", "ניקוי שערים, ידיות ומנעולים", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי ספסלים וריהוט חוץ", "ניקוי כיורים (אם קיים)", "ריקון וניקוי מאפרה (אם קיים)"], "weekly": ["ניקוי מעקות", "ניקוי מתקני משחקים"], "monthly": ["ניקוי פנים וחוץ של פחים", "שטיפת ריצוף חוץ"], "semiannual": []}}, {"code": "L2", "space": "חצר / גינת משחקים", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "ניקוי שבילים ומשטחים מרוצפים", "ניקוי משטחי עבודה (אם קיים)", "ניקוי שערים, ידיות ומנעולים", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי ספסלים וריהוט חוץ", "ניקוי כיורים (אם קיים)", "ריקון וניקוי מאפרה (אם קיים)"], "weekly": ["ניקוי מעקות", "ניקוי מתקני משחקים"], "monthly": ["ניקוי פנים וחוץ של פחים", "שטיפת ריצוף חוץ"], "semiannual": []}}, {"code": "L3", "space": "חצר / גינת משחקים", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "ניקוי שבילים ומשטחים מרוצפים", "ניקוי משטחי עבודה (אם קיים)", "ניקוי שערים, ידיות ומנעולים", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי ספסלים וריהוט חוץ", "ניקוי כיורים (אם קיים)", "ריקון וניקוי מאפרה (אם קיים)"], "weekly": ["ניקוי מעקות", "ניקוי מתקני משחקים"], "monthly": ["ניקוי פנים וחוץ של פחים", "שטיפת ריצוף חוץ"], "semiannual": []}}, {"code": "L4", "space": "חצר / גינת משחקים", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "ניקוי שבילים ומשטחים מרוצפים", "ניקוי משטחי עבודה (אם קיים)", "ניקוי שערים, ידיות ומנעולים", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי ספסלים וריהוט חוץ", "ניקוי כיורים (אם קיים)", "ריקון וניקוי מאפרה (אם קיים)"], "weekly": ["ניקוי מעקות", "ניקוי מתקני משחקים"], "monthly": ["ניקוי פנים וחוץ של פחים", "שטיפת ריצוף חוץ"], "semiannual": []}}, {"code": "M1", "space": "ג'ימבורי", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה (אם קיים)", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי מחיצות זכוכית ומראות", "ניקוי כיסאות (אם קיים)", "ניקוי ספות"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי וילונות", "ניקוי ספות", "ניקוי חיצוני של ארונות", "ניקוי פנימי של ארונות"], "monthly": ["ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי בריכת כדורים", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": ["ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "N1", "space": "לובי / מבואה", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה (אם קיים)", "ניקוי נקודות מגע במסך מידע, מכונת תורים ואינטרקום", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי מחיצות זכוכית ומראות", "ניקוי כיסאות"], "weekly": ["ניקוי אבק ממסך מידע, מכונת תורים ואינטרקום", "ניקוי וילונות", "ניקוי ספות (אם קיים)", "ניקוי חיצוני של ארונות (אם קיים)"], "monthly": ["ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנים וחוץ של פחים", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": ["ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "O1", "space": "מסדרון", "tasks": {"daily": ["ריקון פחים (אם קיים)", "פינוי פסולת", "שטיפת רצפה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי מחיצות זכוכית ומראות"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי ספות (אם קיים)", "ניקוי חיצוני של ארונות (אם קיים)"], "monthly": ["ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי פנים וחוץ של פחים", "ניקוי מלא של חלונות", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": ["ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "P1", "space": "חדר מדרגות", "tasks": {"daily": ["ריקון פחים (אם קיים)", "פינוי פסולת", "טאטוא רצפה / משטח", "ניקוי מעקות"], "weekly": ["שטיפת רצפה", "ניקוי משטחים וציוד משותף"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות"], "semiannual": ["ניקוי גופי תאורה"]}}, {"code": "Q1", "space": "מעליות / לובי מעליות", "tasks": {"daily": ["ריקון פחים (אם קיים)", "פינוי פסולת", "שטיפת רצפה", "ניקוי דלתות מעלית", "ניקוי מעקות וידיות אחיזה", "ניקוי זכוכיות בלובי המעליות"], "weekly": ["ניקוי יסודי של קירות"], "monthly": ["ניקוי פנים וחוץ של פחים"], "semiannual": ["ניקוי גופי תאורה"]}}, {"code": "R1", "space": "חדר טיפול", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי משטחים וציוד משותף", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי מחיצות זכוכית ומראות", "ניקוי כיסאות", "ניקוי מכשירי כושר ופיזיותרפיה"], "weekly": ["ניקוי וילונות", "ניקוי ספות (אם קיים)", "ניקוי חיצוני של ארונות", "ניקוי פנימי של ארונות ותאי אחסון", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות"], "semiannual": ["ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "R2", "space": "חדר טיפול", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי משטחים וציוד משותף", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי מחיצות זכוכית ומראות", "ניקוי כיסאות", "ניקוי מכשירי כושר ופיזיותרפיה"], "weekly": ["ניקוי וילונות", "ניקוי ספות (אם קיים)", "ניקוי חיצוני של ארונות", "ניקוי פנימי של ארונות ותאי אחסון", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות"], "semiannual": ["ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "R3", "space": "חדר טיפול", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי משטחים וציוד משותף", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי מחיצות זכוכית ומראות", "ניקוי כיסאות", "ניקוי מכשירי כושר ופיזיותרפיה"], "weekly": ["ניקוי וילונות", "ניקוי ספות (אם קיים)", "ניקוי חיצוני של ארונות", "ניקוי פנימי של ארונות ותאי אחסון", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות"], "semiannual": ["ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "R4", "space": "חדר טיפול", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי משטחים וציוד משותף", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי מחיצות זכוכית ומראות", "ניקוי כיסאות", "ניקוי מכשירי כושר ופיזיותרפיה"], "weekly": ["ניקוי וילונות", "ניקוי ספות (אם קיים)", "ניקוי חיצוני של ארונות", "ניקוי פנימי של ארונות ותאי אחסון", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות"], "semiannual": ["ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}]}, {"name": "פתח תקוה שושנים 12", "city": "פתח תקוה", "address": "שושנים 12", "elements": [{"code": "A1", "space": "מטבחון", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי משטחים וציוד משותף", "ניקוי דלתות וידיות", "ניקוי מתקני שתייה / תמי 4", "ניקוי חלונות", "ניקוי כיסאות", "מילוי מגבות נייר", "מילוי סבון", "ניקוי כיורים, ברזים ומראות", "ניקוי תעלות ורשתות ניקוז", "ניקוי מקרר חיצוני", "ניקוי מיקרוגל", "ניקוי חיצוני של מדיח כלים", "ניקוי כיריים (אם קיים)", "שטיפת כלי מטבח", "ניקוי מכונת קפה"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי תחתית משטחי עבודה", "ניקוי וילונות", "ניקוי חיצוני של ארונות", "ניקוי פנימי של מדיח כלים", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות", "ניקוי יסודי של רשתות ניקוז", "ניקוי מקרר פנימי"], "semiannual": []}}, {"code": "B1", "space": "מטבח", "tasks": {"daily": ["ריקון פחים", "ניקוי פנים וחוץ של פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי משטחים וציוד משותף", "ניקוי דלתות וידיות", "ניקוי קירות חרסינה", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות", "ניקוי כיסאות", "מילוי מגבות נייר", "מילוי סבון", "ניקוי כיורים, ברזים ומראות", "ניקוי תעלות ורשתות ניקוז", "ניקוי מקרר חיצוני", "ניקוי מיקרוגל", "ניקוי חיצוני של מדיח כלים", "ניקוי כיריים", "ניקוי תנור", "שטיפת כלי מטבח", "ניקוי מכונת קפה"], "weekly": ["ניקוי תחתית משטחי עבודה", "ניקוי יסודי של קירות", "ניקוי וילונות", "ניקוי חיצוני של ארונות", "ניקוי פנימי של מדיח כלים", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי מלא של חלונות", "ניקוי פנימי של ארונות", "ניקוי יסודי של רשתות ניקוז", "ניקוי מקרר פנימי"], "semiannual": []}}, {"code": "C1", "space": "פינת קפה", "tasks": {"daily": ["ריקון פחים", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי משטחים וציוד משותף", "ניקוי דלתות וידיות", "ניקוי מתקני שתייה / תמי 4", "ניקוי חלונות", "מילוי מגבות נייר", "מילוי סבון", "ניקוי מקרר חיצוני", "ניקוי מכונת קפה"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי תחתית משטחי עבודה", "ניקוי וילונות", "ניקוי חיצוני של ארונות"], "monthly": ["ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות", "ניקוי מקרר פנימי"], "semiannual": []}}, {"code": "D1", "space": "מקרר", "tasks": {"daily": ["ניקוי דלתות וידיות", "ניקוי מקרר חיצוני"], "weekly": [], "monthly": ["ניקוי מקרר פנימי"], "semiannual": []}}, {"code": "E1", "space": "מחסן / חדר שירות", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת"], "weekly": ["שטיפת רצפה", "ניקוי משטחי עבודה (אם קיים)", "ניקוי מדפים וציוד תפעולי", "ניקוי דלתות וידיות", "ניקוי חלונות", "ניקוי וילונות", "ניקוי חיצוני של ארונות", "ניקוי פנימי של ארונות ותאי אחסון"], "monthly": ["ניקוי יסודי של דלתות וידיות", "ניקוי פנים וחוץ של פחים", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": ["ניקוי גופי תאורה"]}}, {"code": "F1", "space": "אולם", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחים וציוד משותף", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות"], "weekly": ["ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי פנימי של ארונות ותאי אחסון", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות"], "semiannual": ["ניקוי גופי תאורה", "ניקוי עמוק של שטיחים", "ניקוי עמוק של ספות"]}}, {"code": "F2", "space": "אולם", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחים וציוד משותף", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות"], "weekly": ["ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי פנימי של ארונות ותאי אחסון", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות"], "semiannual": ["ניקוי גופי תאורה", "ניקוי עמוק של שטיחים", "ניקוי עמוק של ספות"]}}, {"code": "G1", "space": "משרד קטן", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות", "ניקוי טלפון ומסכים (אם קיים)"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות"], "semiannual": ["ניקוי עמוק של שטיחים", "ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "G2", "space": "משרד קטן", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות", "ניקוי טלפון ומסכים (אם קיים)"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות"], "semiannual": ["ניקוי עמוק של שטיחים", "ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "G3", "space": "משרד קטן", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות", "ניקוי טלפון ומסכים (אם קיים)"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות"], "semiannual": ["ניקוי עמוק של שטיחים", "ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "G4", "space": "משרד קטן", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות", "ניקוי טלפון ומסכים (אם קיים)"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות"], "semiannual": ["ניקוי עמוק של שטיחים", "ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "G5", "space": "משרד קטן", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות", "ניקוי טלפון ומסכים (אם קיים)"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות"], "semiannual": ["ניקוי עמוק של שטיחים", "ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "G6", "space": "משרד קטן", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות", "ניקוי טלפון ומסכים (אם קיים)"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות"], "semiannual": ["ניקוי עמוק של שטיחים", "ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "G7", "space": "משרד קטן", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות", "ניקוי טלפון ומסכים (אם קיים)"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות"], "semiannual": ["ניקוי עמוק של שטיחים", "ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "G8", "space": "משרד קטן", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות", "ניקוי טלפון ומסכים (אם קיים)"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות"], "semiannual": ["ניקוי עמוק של שטיחים", "ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "G9", "space": "משרד קטן", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות", "ניקוי טלפון ומסכים (אם קיים)"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות"], "semiannual": ["ניקוי עמוק של שטיחים", "ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "H1", "space": "משרד גדול", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות", "ניקוי טלפון ומסכים (אם קיים)"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות"], "semiannual": ["ניקוי עמוק של שטיחים", "ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "H2", "space": "משרד גדול", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות", "ניקוי טלפון ומסכים (אם קיים)"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות"], "semiannual": ["ניקוי עמוק של שטיחים", "ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "I1", "space": "שירותים ללא קהל", "tasks": {"daily": ["ריקון פחים", "שטיפת רצפה", "ניקוי דלתות וידיות", "ניקוי חלונות", "ניקוי ומילוי מתקני נייר", "ניקוי ומילוי מתקני סבון", "ניקוי אסלות", "ניקוי משתנות (אם קיים)", "ניקוי כיורים, ברזים ומראות", "ניקוי נקודתי של מחיצות תאים ודלתות תאים"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של קירות", "ניקוי וילונות"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": []}}, {"code": "J1", "space": "שירותים כולל קהל מיוחד", "tasks": {"daily": ["ריקון פחים", "שטיפת רצפה", "ניקוי דלתות וידיות", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי ומילוי מתקני נייר", "ניקוי ומילוי מתקני סבון", "ניקוי אסלות", "ניקוי משתנות (אם קיים)", "ניקוי כיורים, ברזים ומראות", "ניקוי נקודתי של מחיצות תאים ודלתות תאים"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של קירות", "ניקוי וילונות"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": []}}, {"code": "J2", "space": "שירותים כולל קהל מיוחד", "tasks": {"daily": ["ריקון פחים", "שטיפת רצפה", "ניקוי דלתות וידיות", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי ומילוי מתקני נייר", "ניקוי ומילוי מתקני סבון", "ניקוי אסלות", "ניקוי משתנות (אם קיים)", "ניקוי כיורים, ברזים ומראות", "ניקוי נקודתי של מחיצות תאים ודלתות תאים"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של קירות", "ניקוי וילונות"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": []}}, {"code": "J3", "space": "שירותים כולל קהל מיוחד", "tasks": {"daily": ["ריקון פחים", "שטיפת רצפה", "ניקוי דלתות וידיות", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי ומילוי מתקני נייר", "ניקוי ומילוי מתקני סבון", "ניקוי אסלות", "ניקוי משתנות (אם קיים)", "ניקוי כיורים, ברזים ומראות", "ניקוי נקודתי של מחיצות תאים ודלתות תאים"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של קירות", "ניקוי וילונות"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": []}}, {"code": "K1", "space": "חצר / גינת משחקים", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "ניקוי שבילים ומשטחים מרוצפים", "ניקוי משטחי עבודה (אם קיים)", "ניקוי שערים, ידיות ומנעולים", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי ספסלים וריהוט חוץ", "ניקוי כיורים (אם קיים)", "ריקון וניקוי מאפרה (אם קיים)"], "weekly": ["ניקוי מעקות", "ניקוי מתקני משחקים"], "monthly": ["ניקוי פנים וחוץ של פחים", "שטיפת ריצוף חוץ"], "semiannual": []}}, {"code": "L1", "space": "עמדת קבלת קהל / מזכירות", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי משטחים וציוד משותף", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי מחיצות זכוכית ומראות", "ניקוי כיסאות"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי ספות (אם קיים)", "ניקוי חיצוני של ארונות (אם קיים)"], "monthly": ["ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנים וחוץ של פחים", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": ["ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "M1", "space": "השאלת ציוד", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי מדפים וציוד תפעולי", "ניקוי דלתות וידיות", "ניקוי חלונות", "ניקוי מחיצות זכוכית ומראות"], "weekly": ["ניקוי וילונות", "ניקוי חיצוני של ארונות", "ניקוי פנימי של ארונות ותאי אחסון"], "monthly": ["ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנים וחוץ של פחים", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": ["ניקוי גופי תאורה"]}}, {"code": "N1", "space": "לובי / מבואה", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה (אם קיים)", "ניקוי נקודות מגע במסך מידע, מכונת תורים ואינטרקום", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי מחיצות זכוכית ומראות", "ניקוי כיסאות"], "weekly": ["ניקוי אבק ממסך מידע, מכונת תורים ואינטרקום", "ניקוי וילונות", "ניקוי ספות (אם קיים)", "ניקוי חיצוני של ארונות (אם קיים)"], "monthly": ["ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנים וחוץ של פחים", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": ["ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "O1", "space": "מסדרון", "tasks": {"daily": ["ריקון פחים (אם קיים)", "פינוי פסולת", "שטיפת רצפה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי מחיצות זכוכית ומראות"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי ספות (אם קיים)", "ניקוי חיצוני של ארונות (אם קיים)"], "monthly": ["ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי פנים וחוץ של פחים", "ניקוי מלא של חלונות", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": ["ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "O2", "space": "מסדרון", "tasks": {"daily": ["ריקון פחים (אם קיים)", "פינוי פסולת", "שטיפת רצפה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי מחיצות זכוכית ומראות"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי ספות (אם קיים)", "ניקוי חיצוני של ארונות (אם קיים)"], "monthly": ["ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי פנים וחוץ של פחים", "ניקוי מלא של חלונות", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": ["ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "P1", "space": "חדר מדרגות", "tasks": {"daily": ["ריקון פחים (אם קיים)", "פינוי פסולת", "טאטוא רצפה / משטח", "ניקוי מעקות"], "weekly": ["שטיפת רצפה", "ניקוי משטחים וציוד משותף"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות"], "semiannual": ["ניקוי גופי תאורה"]}}, {"code": "Q1", "space": "חדר קירור", "tasks": {"daily": ["טאטוא רצפה / משטח"], "weekly": ["שטיפת רצפה וניקוי יסודי", "ניקוי דלתות וידיות", "ניקוי חיצוני של ארונות"], "monthly": ["ניקוי פנימי של ארונות"], "semiannual": ["ניקוי תריסי מזגן ופתחי אוורור"]}}, {"code": "R1", "space": "אזור סביב הבנין", "tasks": {"daily": [], "weekly": ["פינוי פסולת"], "monthly": ["ניקוי שבילים ומשטחים מרוצפים"], "semiannual": []}}]}, {"name": "רמת גן שד' ירושלים", "city": "רמת גן", "address": "שד' ירושלים", "elements": [{"code": "A1", "space": "מטבחון", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי משטחים וציוד משותף", "ניקוי דלתות וידיות", "ניקוי מתקני שתייה / תמי 4", "ניקוי חלונות", "ניקוי כיסאות", "מילוי מגבות נייר", "מילוי סבון", "ניקוי כיורים, ברזים ומראות", "ניקוי תעלות ורשתות ניקוז", "ניקוי מקרר חיצוני", "ניקוי מיקרוגל", "ניקוי חיצוני של מדיח כלים", "ניקוי כיריים (אם קיים)", "שטיפת כלי מטבח", "ניקוי מכונת קפה"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי תחתית משטחי עבודה", "ניקוי וילונות", "ניקוי חיצוני של ארונות", "ניקוי פנימי של מדיח כלים", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות", "ניקוי יסודי של רשתות ניקוז", "ניקוי מקרר פנימי"], "semiannual": []}}, {"code": "B1", "space": "מקרר", "tasks": {"daily": ["ניקוי דלתות וידיות", "ניקוי מקרר חיצוני"], "weekly": [], "monthly": ["ניקוי מקרר פנימי"], "semiannual": []}}, {"code": "C1", "space": "משרד קטן", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות", "ניקוי טלפון ומסכים (אם קיים)"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות"], "semiannual": ["ניקוי עמוק של שטיחים", "ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "D1", "space": "חדר עמדות עבודה (open space)", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שאיבת שטיח / ניקוי רצפה", "ניקוי משטחי עבודה", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי חלונות ומחיצות זכוכית (אם קיים)", "ניקוי כיסאות", "ניקוי טלפון ומסכים (אם קיים)"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי חיצוני של ארונות (אם קיים)", "ניקוי ספות", "ניקוי תריסי מזגן ופתחי אוורור"], "monthly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנימי של ארונות"], "semiannual": ["ניקוי גופי תאורה", "ניקוי עמוק של שטיחים", "ניקוי עמוק של ספות"]}}, {"code": "E1", "space": "שירותים כולל קהל", "tasks": {"daily": ["ריקון פחים", "שטיפת רצפה", "ניקוי דלתות וידיות", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי ומילוי מתקני נייר", "ניקוי ומילוי מתקני סבון", "ניקוי אסלות", "ניקוי משתנות (אם קיים)", "ניקוי כיורים, ברזים ומראות", "ניקוי נקודתי של מחיצות תאים ודלתות תאים"], "weekly": ["ניקוי פנים וחוץ של פחים", "ניקוי יסודי של קירות", "ניקוי וילונות"], "monthly": ["ניקוי מלא של חלונות", "ניקוי גופי תאורה", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": []}}, {"code": "F1", "space": "עמדת קבלת קהל / מזכירות", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי משטחים וציוד משותף", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי מחיצות זכוכית ומראות", "ניקוי כיסאות"], "weekly": ["ניקוי משטחים וציוד משותף", "ניקוי וילונות", "ניקוי ספות (אם קיים)", "ניקוי חיצוני של ארונות (אם קיים)"], "monthly": ["ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנים וחוץ של פחים", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": ["ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}, {"code": "G1", "space": "השאלת ציוד", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה", "ניקוי מדפים וציוד תפעולי", "ניקוי דלתות וידיות", "ניקוי חלונות", "ניקוי מחיצות זכוכית ומראות"], "weekly": ["ניקוי וילונות", "ניקוי חיצוני של ארונות", "ניקוי פנימי של ארונות ותאי אחסון"], "monthly": ["ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנים וחוץ של פחים", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": ["ניקוי גופי תאורה"]}}, {"code": "H1", "space": "לובי / מבואה", "tasks": {"daily": ["ריקון פחים", "פינוי פסולת", "שטיפת רצפה", "ניקוי משטחי עבודה (אם קיים)", "ניקוי נקודות מגע במסך מידע, מכונת תורים ואינטרקום", "ניקוי נקודתי של דלתות וידיות", "ניקוי מתקני שתייה / תמי 4 (אם קיים)", "ניקוי מעקות (אם קיים)", "ניקוי חלונות", "ניקוי מחיצות זכוכית ומראות", "ניקוי כיסאות"], "weekly": ["ניקוי אבק ממסך מידע, מכונת תורים ואינטרקום", "ניקוי וילונות", "ניקוי ספות (אם קיים)", "ניקוי חיצוני של ארונות (אם קיים)"], "monthly": ["ניקוי יסודי של דלתות וידיות", "ניקוי יסודי של קירות", "ניקוי מלא של חלונות", "ניקוי פנים וחוץ של פחים", "ניקוי תריסי מזגן ופתחי אוורור"], "semiannual": ["ניקוי גופי תאורה", "ניקוי עמוק של ספות"]}}]}]};
+const FREQS = ['daily','weekly','monthly','semiannual'];
+const FREQ_HE = {daily:'יומי',weekly:'שבועי',monthly:'חודשי',semiannual:'חצי-שנתי'};
+const FREQ_CLS = {daily:'b-daily',weekly:'b-weekly',monthly:'b-monthly',semiannual:'b-semi'};
+const DAYS_HE = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+const WORKDAYS = [0,1,2,3,4,5];           // א–ו
+const WEEKS_IN_MONTH = [1,2,3,4];
+
+/* חלל "כללי" — למשימות שאינן שייכות לחדר מסוים אלא לאתר כולו
+   (ניקוי חלונות חיצוני, פינוי גזם, בדיקת מלאי חומרי ניקוי וכו').
+   נוסף בסוף מערך האלמנטים כדי לא לשנות את האינדקסים הקיימים.      */
+const GENERAL_SPACE = 'כללי — כל האתר';
+DATA.sites.forEach(s=>{
+  if(!s.elements.some(e=>e.general))
+    s.elements.push({code:'כללי', space:GENERAL_SPACE, general:true,
+                     tasks:{daily:[],weekly:[],monthly:[],semiannual:[]}});
+});
+function realElements(s){ return s.elements.filter(e=>!e.general); }
+
+/* ================= לוח שנה עברי =================
+   חישוב מלא של התאריך העברי והמועדים, ללא תלות באינטרנט או בספרייה חיצונית.
+   אומת מול ר"ה, פסח, יו"כ, שבועות ופורים בשנים תשפ"ד–תשפ"ח.            */
+function hebLeap(y){ return ((y*7+1)%19) < 7; }
+function hebElapsedDays(year){
+  const m = Math.floor((235*year - 234)/19);
+  const p = 12084 + 13753*m;
+  let d = m*29 + Math.floor(p/25920);
+  if (((3*(d+1))%7) < 3) d += 1;
+  return d;
+}
+function hebDelay(year){
+  const last=hebElapsedDays(year-1), pres=hebElapsedDays(year), next=hebElapsedDays(year+1);
+  if (next-pres===356) return 2;
+  if (pres-last===382) return 1;
+  return 0;
+}
+function hebNewYearDay(y){ return hebElapsedDays(y)+hebDelay(y); }
+function hebYearLength(y){ return hebNewYearDay(y+1)-hebNewYearDay(y); }
+const HEB_EPOCH_OFFSET = -1373427;
+function hebRoshHashanaRD(y){ return hebNewYearDay(y)+HEB_EPOCH_OFFSET; }
+
+function hebMonthLengths(y){
+  const L=hebYearLength(y), leap=hebLeap(y);
+  const arr=[30, (L===355||L===385)?30:29, (L===353||L===383)?29:30, 29, 30];
+  if(leap){ arr.push(30,29); } else { arr.push(29); }
+  return arr.concat([30,29,30,29,30,29]);
+}
+function hebMonthNames(y){
+  return hebLeap(y)
+    ? ['תשרי','חשוון','כסלו','טבת','שבט','אדר א׳','אדר ב׳','ניסן','אייר','סיוון','תמוז','אב','אלול']
+    : ['תשרי','חשוון','כסלו','טבת','שבט','אדר','ניסן','אייר','סיוון','תמוז','אב','אלול'];
+}
+function gregToRD(y,m,d){
+  const a=Math.floor((14-m)/12), yy=y+4800-a, mm=m+12*a-3;
+  return d + Math.floor((153*mm+2)/5) + 365*yy + Math.floor(yy/4) - Math.floor(yy/100)
+       + Math.floor(yy/400) - 32045 - 1721425;
+}
+function rdToHeb(rd){
+  let y = Math.floor((rd-HEB_EPOCH_OFFSET)/365)+1;
+  while (hebRoshHashanaRD(y+1) <= rd) y++;
+  while (hebRoshHashanaRD(y) > rd) y--;
+  let rem = rd - hebRoshHashanaRD(y);
+  const lens = hebMonthLengths(y);
+  let mi = 0;
+  while (rem >= lens[mi]) { rem -= lens[mi]; mi++; }
+  return {y, mi, d:rem+1, monthName:hebMonthNames(y)[mi]};
+}
+function hebToRD(y, mi, day){
+  const lens=hebMonthLengths(y);
+  let rd=hebRoshHashanaRD(y);
+  for(let i=0;i<mi;i++) rd+=lens[i];
+  return rd+day-1;
+}
+function mIdx(y,name){
+  const head={tishrei:0,cheshvan:1,kislev:2,tevet:3,shevat:4};
+  if(name in head) return head[name];
+  const leap=hebLeap(y);
+  if(name==='adar') return leap?6:5;          // פורים חל באדר ב׳ בשנה מעוברת
+  const after=leap?7:6;
+  return after + {nisan:0,iyar:1,sivan:2,tamuz:3,av:4,elul:5}[name];
+}
+function hebNumStr(n){
+  const ones=['','א','ב','ג','ד','ה','ו','ז','ח','ט'];
+  const tens=['','י','כ','ל','מ','נ','ס','ע','פ','צ'];
+  const hund=['','ק','ר','ש','ת'];
+  let s='', h=Math.floor(n/100), rest=n%100;
+  while(h>4){ s+='ת'; h-=4; }
+  s+=hund[h];
+  if(rest===15) s+='טו'; else if(rest===16) s+='טז';
+  else s += tens[Math.floor(rest/10)] + ones[rest%10];
+  return s.length>1 ? s.slice(0,-1)+'״'+s.slice(-1) : s+'׳';
+}
+function hebDateStr(dstr){
+  const h=rdToHeb(dateRD(dstr));
+  return hebNumStr(h.d)+' ב'+h.monthName+' '+hebNumStr(h.y-5000);
+}
+
+/* ---- מועדים ---- */
+// קטגוריות: yomtov=חג | cholhamoed=חול המועד | erev=ערב חג | fast=צום | shushan=שושן פורים
+const CATS = {
+  yomtov:    {he:'חגים ומועדים',       def:true,  desc:'ראש השנה, יום כיפור, סוכות, פסח, שבועות, פורים'},
+  cholhamoed:{he:'חול המועד',          def:false, desc:'חול המועד סוכות ופסח'},
+  erev:      {he:'ערבי חג',            def:false, desc:'ערב ראש השנה, ערב יו״כ, ערבי סוכות/פסח/שבועות, הושענא רבה'},
+  fast:      {he:'צומות',              def:false, desc:'תענית אסתר, י״ז בתמוז, תשעה באב'},
+  shushan:   {he:'שושן פורים',         def:false, desc:'ט״ו באדר — יום שבתון בירושלים בלבד'}
+};
+const _holCache={};
+function holidaysForHebYear(hy){
+  if(_holCache[hy]) return _holCache[hy];
+  const map={};
+  const add=(mon,day,name,cat)=>{ map[hebToRD(hy, mIdx(hy,mon), day)]={name,cat}; };
+  add('elul',29,'ערב ראש השנה','erev');
+  add('tishrei',1,'ראש השנה א׳','yomtov');
+  add('tishrei',2,'ראש השנה ב׳','yomtov');
+  add('tishrei',9,'ערב יום כיפור','erev');
+  add('tishrei',10,'יום כיפור','yomtov');
+  add('tishrei',14,'ערב סוכות','erev');
+  add('tishrei',15,'סוכות','yomtov');
+  for(let d=16;d<=20;d++) add('tishrei',d,'חול המועד סוכות','cholhamoed');
+  add('tishrei',21,'הושענא רבה','erev');
+  add('tishrei',22,'שמיני עצרת / שמחת תורה','yomtov');
+  add('adar',13,'תענית אסתר','fast');
+  add('adar',14,'פורים','yomtov');
+  add('adar',15,'שושן פורים','shushan');
+  add('nisan',14,'ערב פסח','erev');
+  add('nisan',15,'פסח — חג ראשון','yomtov');
+  for(let d=16;d<=20;d++) add('nisan',d,'חול המועד פסח','cholhamoed');
+  add('nisan',21,'שביעי של פסח','yomtov');
+  add('sivan',5,'ערב שבועות','erev');
+  add('sivan',6,'שבועות','yomtov');
+  add('tamuz',17,'צום י״ז בתמוז','fast');
+  add('av',9,'תשעה באב','fast');
+  return _holCache[hy]=map;
+}
+function getHoliday(dstr){
+  const rd=dateRD(dstr);
+  return holidaysForHebYear(rdToHeb(rd).y)[rd] || null;
+}
+function holidaysBetween(from,to){
+  const r1=dateRD(from), r2=dateRD(to);
+  const y1=rdToHeb(r1).y, y2=rdToHeb(r2).y, out=[];
+  for(let hy=y1; hy<=y2; hy++){
+    const m=holidaysForHebYear(hy);
+    Object.keys(m).map(Number).forEach(rd=>{
+      if(rd>=r1 && rd<=r2) out.push(Object.assign({rd, date:rdToDateStr(rd)}, m[rd]));
+    });
+  }
+  return out.sort((a,b)=>a.rd-b.rd);
+}
+
+/* ================= STATE ================= */
+const LS = 'ezer_clean_v1';
+let db = load();
+let cur = {site:null, role:null, day:todayStr()};
+
+function defaultCats(){ return Object.keys(CATS).filter(k=>CATS[k].def); }
+function load(){
+  let d={};
+  try{ const raw=localStorage.getItem(LS); if(raw) d=JSON.parse(raw); }catch(e){}
+  return Object.assign({plans:{}, done:{}, offdays:[], openDates:[], closedCats:defaultCats(),
+    taskEdits:{}, taskDel:{}, taskAdd:{}, addSeq:0, meta:{}}, d);
+}
+function save(){ try{ localStorage.setItem(LS, JSON.stringify(db)); }catch(e){ toast('שגיאה בשמירה'); } }
+
+/* ================= DATE HELPERS ================= */
+function todayStr(){ return fmt(new Date()); }
+function fmt(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function parseD(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function addDays(s,n){ const d=parseD(s); d.setDate(d.getDate()+n); return fmt(d); }
+function heDate(s){ const d=parseD(s); return d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear(); }
+function dow(s){ return parseD(s).getDay(); }
+// שבוע בחודש 1..5. שיבוצים נעשים רק לשבועות 1-4 כדי שכל משימה חודשית
+// תופיע בדיוק פעם אחת בחודש (ימים 29-31 שייכים ל"שבוע 5" ואינם משובצים).
+function weekOfMonth(s){ return Math.ceil(parseD(s).getDate()/7); }
+function monthIdx(s){ return parseD(s).getMonth(); }
+
+function dateRD(s){ const [y,m,d]=s.split('-').map(Number); return gregToRD(y,m,d); }
+function rdToDateStr(rd){
+  const jdn=rd+1721425, a=jdn+32044, b=Math.floor((4*a+3)/146097), c=a-Math.floor(146097*b/4);
+  const dd=Math.floor((4*c+3)/1461), e=c-Math.floor(1461*dd/4), m=Math.floor((5*e+2)/153);
+  const day=e-Math.floor((153*m+2)/5)+1, month=m+3-12*Math.floor(m/10), year=100*b+dd-4800+Math.floor(m/10);
+  return year+'-'+String(month).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+}
+
+/* יום ללא עבודה: שבת | תוספת ידנית | מועד אוטומטי שקטגוריית סגור מסומנת לו.
+   חריג ידני (openDates) גובר על המועד האוטומטי.                        */
+function autoClosed(s){
+  const h=getHoliday(s);
+  return (h && db.closedCats.includes(h.cat)) ? h : null;
+}
+function isOff(s){
+  if(dow(s)===6) return true;
+  if(db.offdays.some(o=>o.date===s)) return true;
+  if(db.openDates.includes(s)) return false;
+  return !!autoClosed(s);
+}
+function offReason(s){
+  if(dow(s)===6) return 'שבת';
+  const o=db.offdays.find(o=>o.date===s);
+  if(o) return o.name;
+  if(db.openDates.includes(s)) return null;
+  const h=autoClosed(s);
+  return h ? h.name : null;
+}
+function prevWorkday(s){ let d=addDays(s,-1); let g=0; while(isOff(d) && g++<40) d=addDays(d,-1); return d; }
+
+/* ================= TASK KEYS ================= */
+// key = elementIndex | freq | taskIndex   (משימה שנוספה ידנית: taskIndex = c<מזהה>)
+// רשימת המשימות בפועל = הנתונים מהאקסל + עריכות − מחיקות + תוספות של המפקח
+function siteTasks(si){
+  const out=[];
+  const edits=db.taskEdits[si]||{}, del=db.taskDel[si]||[], add=db.taskAdd[si]||[];
+  DATA.sites[si].elements.forEach((el,ei)=>{
+    FREQS.forEach(f=>{
+      (el.tasks[f]||[]).forEach((t,ti)=>{
+        const key=ei+'|'+f+'|'+ti;
+        if(del.includes(key)) return;
+        out.push({key, ei, freq:f, text: edits[key]!==undefined?edits[key]:t, code:el.code, space:el.space});
+      });
+      add.forEach(a=>{
+        if(a.ei!==ei || a.freq!==f) return;
+        const key=ei+'|'+f+'|c'+a.id;
+        if(del.includes(key)) return;
+        out.push({key, ei, freq:f, text: edits[key]!==undefined?edits[key]:a.text,
+                  code:el.code, space:el.space, custom:true});
+      });
+    });
+  });
+  return out;
+}
+
+/* ---- עריכת משימות ---- */
+function arr(obj,si){ return obj[si]=obj[si]||[]; }
+// כל המשימות באותו סוג חלל שהטקסט שלהן זהה — לצורך החלה על כל החללים מאותו סוג
+function twinKeys(si,key){
+  const all=siteTasks(si), src=all.find(t=>t.key===key);
+  if(!src) return [key];
+  return all.filter(t=>t.space===src.space && t.freq===src.freq && t.text===src.text).map(t=>t.key);
+}
+function applyToTwins(){ const el=document.getElementById('pTwins'); return !el || el.checked; }
+
+function setTaskText(si,key,text){
+  text=text.trim(); if(!text) return renderPlan();
+  const keys = applyToTwins()? twinKeys(si,key) : [key];
+  db.taskEdits[si]=db.taskEdits[si]||{};
+  keys.forEach(k=>db.taskEdits[si][k]=text);
+  save(); renderPlan();
+  toast(keys.length>1?`המשימה עודכנה ב-${keys.length} חללים`:'המשימה עודכנה');
+}
+function delTask(si,key){
+  const keys = applyToTwins()? twinKeys(si,key) : [key];
+  if(!confirm(keys.length>1
+      ? `למחוק את המשימה מ-${keys.length} החללים מסוג זה?`
+      : 'למחוק את המשימה?')) return;
+  const D=arr(db.taskDel,si);
+  keys.forEach(k=>{ if(!D.includes(k)) D.push(k); });
+  save(); ensurePlan(si); renderPlan(); renderDash();
+  toast(`נמחקו ${keys.length} משימות`);
+}
+function addTask(si, eis, freq, text){
+  text=text.trim(); if(!text) return toast('יש להזין תיאור משימה');
+  const A=arr(db.taskAdd,si);
+  eis.forEach(ei=>{ db.addSeq++; A.push({ei, freq, text, id:db.addSeq}); });
+  save(); ensurePlan(si); renderPlan(); renderDash();
+  toast(`נוספה משימה ל-${eis.length} חללים`);
+}
+function restoreTasks(si){
+  if(!confirm('לשחזר את כל המשימות מהאקסל המקורי? כל העריכות, המחיקות והתוספות באתר זה יימחקו.')) return;
+  delete db.taskEdits[si]; delete db.taskDel[si]; delete db.taskAdd[si];
+  save(); ensurePlan(si,true); renderPlan(); renderDash(); toast('המשימות שוחזרו מהאקסל');
+}
+function siteEdited(si){
+  return Object.keys(db.taskEdits[si]||{}).length || (db.taskDel[si]||[]).length || (db.taskAdd[si]||[]).length;
+}
+
+/* ================= AUTO DISTRIBUTION ================= */
+function ensurePlan(siteIdx, force){
+  const id = String(siteIdx);
+  if(force || !db.plans[id]) db.plans[id] = {};
+  const plan = db.plans[id];
+  const tasks = siteTasks(siteIdx);
+  const live = new Set(tasks.map(t=>t.key));
+
+  // ניקוי שיבוצים של משימות שנמחקו
+  Object.keys(plan).forEach(k=>{ if(!live.has(k)) delete plan[k]; });
+
+  // load[weekday] = number of task-instances landing on that weekday per week
+  const wLoad = {}; WORKDAYS.forEach(d=>wLoad[d]=0);
+  // load[week][weekday] for monthly
+  const mLoad = {}; WEEKS_IN_MONTH.forEach(w=>{mLoad[w]={};WORKDAYS.forEach(d=>mLoad[w][d]=0)});
+  // load[month 0-5][week][weekday] for semiannual
+  const sLoad = {}; for(let m=0;m<6;m++){sLoad[m]={};WEEKS_IN_MONTH.forEach(w=>{sLoad[m][w]={};WORKDAYS.forEach(d=>sLoad[m][w][d]=0)})}
+
+  // ספירת העומס הקיים, כדי שמשימות חדשות ישובצו לימים הפנויים ביותר
+  Object.values(plan).forEach(r=>{
+    if(r.f==='weekly' && wLoad[r.dow]!==undefined) wLoad[r.dow]++;
+    else if(r.f==='monthly' && mLoad[r.week] && mLoad[r.week][r.dow]!==undefined) mLoad[r.week][r.dow]++;
+    else if(r.f==='semiannual' && sLoad[r.month] && sLoad[r.month][r.week]) sLoad[r.month][r.week][r.dow]++;
+  });
+
+  const minKey = obj => Object.keys(obj).map(Number).reduce((a,b)=> obj[a]<=obj[b]?a:b);
+
+  tasks.forEach(t=>{
+    if(plan[t.key]) return;                       // כבר משובצת — לא נוגעים
+    if(t.freq==='daily'){ plan[t.key]={f:'daily'}; return; }
+    if(t.freq==='weekly'){
+      const d = minKey(wLoad); wLoad[d]++;
+      plan[t.key]={f:'weekly', dow:d};
+    }
+    if(t.freq==='monthly'){
+      let best=null;
+      WEEKS_IN_MONTH.forEach(w=>WORKDAYS.forEach(d=>{
+        if(!best || mLoad[w][d] < mLoad[best.w][best.d]) best={w,d};
+      }));
+      mLoad[best.w][best.d]++;
+      plan[t.key]={f:'monthly', week:best.w, dow:best.d};
+    }
+    if(t.freq==='semiannual'){
+      let best=null;
+      for(let m=0;m<6;m++) WEEKS_IN_MONTH.forEach(w=>WORKDAYS.forEach(d=>{
+        if(!best || sLoad[m][w][d] < sLoad[best.m][best.w][best.d]) best={m,w,d};
+      }));
+      sLoad[best.m][best.w][best.d]++;
+      plan[t.key]={f:'semiannual', month:best.m, week:best.w, dow:best.d};
+    }
+  });
+  save();
+  return plan;
+}
+
+/* is a task scheduled on date s (ignoring off-days)? */
+function scheduledOn(rule, s){
+  if(!rule) return false;
+  const d=dow(s);
+  if(!WORKDAYS.includes(d)) return false;
+  if(rule.f==='daily') return true;
+  if(rule.dow!==d) return false;
+  if(rule.f==='weekly') return true;
+  if(weekOfMonth(s)!==rule.week) return false;
+  if(rule.f==='monthly') return true;
+  if(rule.f==='semiannual') return (monthIdx(s)%6)===rule.month;
+  return false;
+}
+
+/* ================= DAILY PLAN (with carry-forward) ================= */
+function dailyPlan(siteIdx, s){
+  const plan = ensurePlan(siteIdx);
+  const tasks = siteTasks(siteIdx);
+  const out=[];
+  if(isOff(s)) return out;
+
+  // dates to cover: today + every closed day back to the previous working day.
+  // שבת אינה נספרת (אינה יום עבודה) אך מדלגים מעליה כדי לא לאבד חג שנפל בשישי.
+  const dates=[{d:s, carry:false}];
+  let p = addDays(s,-1), guard=0;
+  while(isOff(p) && guard++<20){
+    if(dow(p)!==6) dates.push({d:p, carry:true});
+    p = addDays(p,-1);
+  }
+
+  const seen=new Set();
+  dates.forEach(({d,carry})=>{
+    tasks.forEach(t=>{
+      if(seen.has(t.key)) return;
+      if(scheduledOn(plan[t.key], d)){
+        seen.add(t.key);
+        out.push(Object.assign({}, t, {carry, carryFrom:carry?d:null}));
+      }
+    });
+  });
+  return out;
+}
+
+/* קיבוץ התכנית היומית: אלמנטים מאותו סוג חלל מאוחדים לקבוצה אחת.
+   משמש גם את מסך המנקה וגם את פלט ההדפסה.                        */
+function groupPlan(si, day){
+  const list=dailyPlan(si,day), els=DATA.sites[si].elements;
+  const byEl={};
+  list.forEach(t=>{ (byEl[t.ei]=byEl[t.ei]||[]).push(t); });
+  const groups=[], gIndex={};
+  Object.keys(byEl).map(Number).sort((a,b)=>a-b).forEach(ei=>{
+    const space=els[ei].space;
+    if(gIndex[space]===undefined){ gIndex[space]=groups.length; groups.push({space, els:[]}); }
+    groups[gIndex[space]].els.push({ei, code:els[ei].code, tasks:byEl[ei]});
+  });
+  return groups;
+}
+
+/* ================= DONE STORE ================= */
+function doneKey(siteIdx, s){ return siteIdx+'@'+s; }
+function getDone(siteIdx, s){ return db.done[doneKey(siteIdx,s)] || null; }
+function toggleDone(siteIdx, s, key){
+  const k=doneKey(siteIdx,s);
+  if(!db.done[k]) db.done[k]={tasks:{}, closed:false};
+  const T=db.done[k].tasks;
+  if(T[key]) delete T[key]; else T[key]={at:new Date().toISOString()};
+  save();
+}
+
+/* ================= VIEWS ================= */
+function show(id){ ['vHome','vRole','vClean','vSup'].forEach(v=>document.getElementById(v).classList.toggle('hide', v!==id)); }
+function goHome(){ cur={site:null,role:null,day:todayStr()}; show('vHome'); document.getElementById('ctx').innerHTML=''; document.getElementById('btnSwitch').classList.add('hide'); document.getElementById('stick').classList.add('hide'); }
+
+/* ---------- SITE FINDER ---------- */
+let finderInit=false;
+function cityList(){ return [...new Set(DATA.sites.map(s=>s.city))].sort((a,b)=>a.localeCompare(b,'he')); }
+function addrList(city){
+  return DATA.sites.filter(s=>!city || s.city===city)
+    .map(s=>s.address).filter((v,i,a)=>a.indexOf(v)===i).sort((a,b)=>a.localeCompare(b,'he'));
+}
+function fillSelect(el, items, placeholder, keep){
+  el.innerHTML = `<option value="">${placeholder}</option>` +
+    items.map(v=>`<option value="${v}" ${keep===v?'selected':''}>${v}</option>`).join('');
+}
+function onCityChange(){
+  const city=document.getElementById('qCity').value;
+  fillSelect(document.getElementById('qAddr'), addrList(city), 'כל הכתובות', '');
+  renderHome();
+}
+function clearFinder(){
+  document.getElementById('qSearch').value='';
+  document.getElementById('qCity').value='';
+  onCityChange();
+}
+
+function renderHome(){
+  if(!finderInit){
+    fillSelect(document.getElementById('qCity'), cityList(), 'כל הערים', '');
+    fillSelect(document.getElementById('qAddr'), addrList(''), 'כל הכתובות', '');
+    finderInit=true;
+  }
+  const q = document.getElementById('qSearch').value.trim();
+  const city = document.getElementById('qCity').value;
+  const addr = document.getElementById('qAddr').value;
+
+  const norm = t => String(t).replace(/["'׳״]/g,'').toLowerCase();
+  const terms = norm(q).split(/\s+/).filter(Boolean);
+
+  const hits = DATA.sites.map((s,i)=>({s,i})).filter(({s})=>{
+    if(city && s.city!==city) return false;
+    if(addr && s.address!==addr) return false;
+    if(!terms.length) return true;
+    const hay = norm(s.name+' '+s.city+' '+s.address);
+    return terms.every(t=>hay.includes(t));   // כל המילים חייבות להימצא
+  });
+
+  const total=DATA.sites.length;
+  document.getElementById('foundTxt').textContent =
+    hits.length===total ? `${total} אתרים` : `נמצאו ${hits.length} אתרים מתוך ${total}`;
+
+  document.getElementById('siteGrid').innerHTML = hits.length ? hits.map(({s,i})=>{
+    const daily = s.elements.reduce((a,e)=>a+(e.tasks.daily||[]).length,0);
+    return `<button class="pick" onclick="pickSite(${i})">
+      <span class="mk">📍</span>
+      <span class="tx">
+        <span class="city">${s.city}</span>
+        <b>${s.address}</b>
+        <small>${realElements(s).length} אלמנטים · ${daily} משימות יומיות</small>
+      </span></button>`;
+  }).join('') : `<div class="empty" style="grid-column:1/-1"><div class="ic">🔍</div>לא נמצאו אתרים מתאימים</div>`;
+}
+function pickSite(i){
+  cur.site=i;
+  document.getElementById('roleSite').textContent = DATA.sites[i].name;
+  show('vRole');
+  document.getElementById('btnSwitch').classList.remove('hide');
+}
+function enter(role){
+  cur.role=role; cur.day=todayStr();
+  document.getElementById('ctx').innerHTML = `<b>${DATA.sites[cur.site].name}</b>${role==='cleaner'?'מנקה':'מפקח ניקיון'}`;
+  if(role==='cleaner'){ show('vClean'); renderClean(); }
+  else { show('vSup'); initSup(); }
+}
+
+/* ---------- CLEANER ---------- */
+function setDay(s){ cur.day=s; renderClean(); }
+function shiftDay(n){ setDay(addDays(cur.day,n)); }
+
+function renderClean(){
+  const s=cur.day;
+  const hol=getHoliday(s);
+  document.getElementById('cDay').textContent = 'יום ' + DAYS_HE[dow(s)];
+  document.getElementById('cDate').innerHTML = heDate(s) + ' · ' + hebDateStr(s)
+    + (s===todayStr()?' · <b>היום</b>':'')
+    + (hol && !isOff(s) ? ` · <span style="color:var(--warn)">${hol.name}</span>` : '');
+
+  const closedBox=document.getElementById('cClosed');
+  if(isOff(s)){
+    closedBox.innerHTML = dow(s)===6
+      ? `<div class="note blue"><b>אין עבודה בשבת</b></div>`
+      : `<div class="note red"><b>${offReason(s)} — אין עבודה היום</b><br>המשימות שנקבעו ליום זה יעברו אוטומטית ליום העבודה הבא.</div>`;
+    document.getElementById('cProgWrap').classList.add('hide');
+    document.getElementById('cList').innerHTML='';
+    document.getElementById('stick').classList.add('hide');
+    document.getElementById('btnExpand').classList.add('hide');
+    return;
+  }
+  closedBox.innerHTML='';
+  document.getElementById('cProgWrap').classList.remove('hide');
+  document.getElementById('btnExpand').classList.remove('hide');
+
+  const D = (getDone(cur.site,s) || {tasks:{}}).tasks || {};
+  const groups = groupPlan(cur.site, s);
+  curGroups = groups;
+
+  const html = groups.map((g,gi)=>{
+    const multi = g.els.length>1;
+    // תג האלמנט: קוד יחיד, או אות משותפת כשיש כמה (G1..G9 → G)
+    const prefixes=[...new Set(g.els.map(e=>e.code.replace(/\d+/g,'')))];
+    const codeLbl = multi ? (prefixes.length===1 ? prefixes[0] : g.els.length+'×') : g.els[0].code;
+    const tot = g.els.reduce((a,e)=>a+e.tasks.length,0);
+    const dn  = g.els.reduce((a,e)=>a+e.tasks.filter(t=>D[t.key]).length,0);
+
+    const tabs = multi ? `<div class="etabs">${g.els.map((e,i)=>{
+        const d=e.tasks.filter(t=>D[t.key]).length;
+        return `<button class="etab ${i===0?'on':''} ${d===e.tasks.length?'full':''}" data-i="${i}"
+          onclick="etab(${gi},${i})">${e.code}<i>${d}/${e.tasks.length}</i></button>`;
+      }).join('')}</div>` : '<div class="etabs"></div>';
+
+    const panes = g.els.map((e,i)=>`<div class="epane ${i?'hide':''}" data-i="${i}">
+        ${e.tasks.map(t=>`<div class="task ${D[t.key]?'on':''}" data-key="${t.key}" onclick="tap(this)">
+          <span class="box">✓</span>
+          <span class="lbl">${t.text}</span>
+          ${t.carry?`<span class="badge b-carry">הועבר מ-${heDate(t.carryFrom)}</span>`:''}
+          <span class="badge ${FREQ_CLS[t.freq]}">${FREQ_HE[t.freq]}</span>
+        </div>`).join('')}
+      </div>`).join('');
+
+    return `<div class="elem ${dn===tot?'done':''}" id="g${gi}" data-gi="${gi}">
+      <div class="elemH" onclick="document.getElementById('g${gi}').classList.toggle('open')">
+        <span class="code">${codeLbl}</span>
+        <span class="nm">${g.space}</span>
+        ${multi?`<span class="multi">${g.els.length} חללים</span>`:''}
+        <span class="cnt">${dn}/${tot}</span>
+        <span class="chev">‹</span>
+      </div>
+      <div class="elemB">
+        <div class="gbar">
+          ${tabs}
+          <div class="gact">
+            <button class="btn g sm" onclick="markPane(${gi})">${multi?'סימון החלל':'סימון הכל'}</button>
+            ${multi?`<button class="btn g sm" onclick="markGroup(${gi})">סימון כל ${g.els.length} החללים</button>`:''}
+          </div>
+        </div>
+        ${panes}
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('cList').innerHTML = html || `<div class="card empty"><div class="ic">✨</div>אין משימות מתוזמנות ליום זה</div>`;
+  document.getElementById('btnExpand').textContent='פתיחת הכל';
+  updateProg();
+}
+
+let curGroups=[];
+
+/* מעבר בין חללים זהים */
+function etab(gi,i){
+  const box=document.getElementById('g'+gi);
+  box.querySelectorAll('.epane').forEach((p,j)=>p.classList.toggle('hide', j!==i));
+  box.querySelectorAll('.etab').forEach((b,j)=>b.classList.toggle('on', j===i));
+}
+function toggleAllGroups(){
+  const boxes=[...document.querySelectorAll('#cList .elem')];
+  if(!boxes.length) return;
+  const open = !boxes.every(b=>b.classList.contains('open'));
+  boxes.forEach(b=>b.classList.toggle('open', open));
+  document.getElementById('btnExpand').textContent = open?'סגירת הכל':'פתיחת הכל';
+}
+
+/* סימון בודד / קבוצתי */
+function tap(el){ setTasks([el], !el.classList.contains('on')); }
+function markPane(gi){
+  const p=document.getElementById('g'+gi).querySelector('.epane:not(.hide)');
+  bulk([...p.querySelectorAll('.task')]);
+}
+function markGroup(gi){
+  bulk([...document.getElementById('g'+gi).querySelectorAll('.task')]);
+}
+function bulk(tasks){
+  if(!tasks.length) return;
+  // אם הכול כבר מסומן — ביטול הסימון; אחרת סימון הכול
+  setTasks(tasks, !tasks.every(t=>t.classList.contains('on')));
+}
+function setTasks(tasks, on){
+  tasks.forEach(t=>{
+    if(t.classList.contains('on')===on) return;
+    toggleDone(cur.site, cur.day, t.dataset.key);
+    t.classList.toggle('on', on);
+  });
+  refreshCounts();
+}
+function refreshCounts(){
+  document.querySelectorAll('#cList .elem').forEach(box=>{
+    const tot=box.querySelectorAll('.task').length, dn=box.querySelectorAll('.task.on').length;
+    box.querySelector('.cnt').textContent=dn+'/'+tot;
+    box.classList.toggle('done', tot>0 && dn===tot);
+    box.querySelectorAll('.epane').forEach((p,i)=>{
+      const tab=box.querySelector('.etab[data-i="'+i+'"]');
+      if(!tab) return;
+      const t=p.querySelectorAll('.task').length, d=p.querySelectorAll('.task.on').length;
+      tab.querySelector('i').textContent=d+'/'+t;
+      tab.classList.toggle('full', t>0 && d===t);
+    });
+  });
+  updateProg();
+}
+
+function updateProg(){
+  const list=dailyPlan(cur.site,cur.day);
+  const D=(getDone(cur.site,cur.day)||{tasks:{}}).tasks;
+  const dn=list.filter(t=>D[t.key]).length, tot=list.length;
+  const pct= tot? Math.round(dn/tot*100):0;
+  document.getElementById('cBar').style.width=pct+'%';
+  document.getElementById('cTxt').textContent=`בוצעו ${dn} מתוך ${tot} משימות`;
+  document.getElementById('cPct').textContent=pct+'%';
+  const st=document.getElementById('stick');
+  if(tot){ st.classList.remove('hide'); document.getElementById('stickTxt').textContent = dn===tot? 'כל המשימות הושלמו 🎉' : `נותרו ${tot-dn} משימות`; }
+  else st.classList.add('hide');
+}
+function finishDay(){
+  const k=doneKey(cur.site,cur.day);
+  if(!db.done[k]) db.done[k]={tasks:{},closed:false};
+  db.done[k].closed=true; db.done[k].closedAt=new Date().toISOString();
+  save(); toast('היום אושר ונשלח לדוח המפקח');
+}
+
+/* ---------- SUPERVISOR ---------- */
+function initSup(){
+  ['pSite','rSite'].forEach(id=>{
+    document.getElementById(id).innerHTML = DATA.sites.map((s,i)=>`<option value="${i}" ${i===cur.site?'selected':''}>${s.name}</option>`).join('');
+  });
+  document.getElementById('prSite').innerHTML = '<option value="*">כל האתרים</option>' +
+    DATA.sites.map((s,i)=>`<option value="${i}" ${i===cur.site?'selected':''}>${s.name}</option>`).join('');
+  document.getElementById('prDate').value = todayStr();
+  document.getElementById('rTo').value = todayStr();
+  document.getElementById('rFrom').value = addDays(todayStr(),-30);
+  document.getElementById('offDate').value = todayStr();
+  DATA.sites.forEach((s,i)=>ensurePlan(i));
+  renderDash(); renderPlan(); renderOff(); renderRep();
+}
+function supTab(t,btn){
+  ['dash','plan','days','rep'].forEach(x=>document.getElementById('t'+x[0].toUpperCase()+x.slice(1)).classList.toggle('hide',x!==t));
+  document.querySelectorAll('#vSup .tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function dayStats(siteIdx, s){
+  if(isOff(s)) return null;
+  const list=dailyPlan(siteIdx,s);
+  const D=(getDone(siteIdx,s)||{tasks:{}}).tasks;
+  const dn=list.filter(t=>D[t.key]).length;
+  return {total:list.length, done:dn, pct: list.length? Math.round(dn/list.length*100):0, closed:!!(getDone(siteIdx,s)||{}).closed};
+}
+function pill(p){ const c=p>=90?'p-ok':p>=60?'p-mid':'p-bad'; return `<span class="pill ${c}">${p}%</span>`; }
+
+function renderDash(){
+  const t=todayStr();
+  let tot=0,dn=0,sites=0;
+  const rows=DATA.sites.map((s,i)=>{
+    const st=dayStats(i,t);
+    if(!st) return `<tr><td>${s.name}</td><td colspan="3" style="color:var(--muted)">אין עבודה</td></tr>`;
+    tot+=st.total; dn+=st.done; sites++;
+    return `<tr><td>${s.name}</td><td>${st.done}/${st.total}</td><td>${pill(st.pct)}</td>
+      <td>${st.closed?'<span class="pill p-ok">אושר</span>':'<span class="pill p-mid">בתהליך</span>'}</td></tr>`;
+  }).join('');
+  document.getElementById('dToday').innerHTML = isOff(t)
+    ? (dow(t)===6 ? `<div class="note blue"><b>אין עבודה בשבת</b></div>`
+                  : `<div class="note red"><b>${offReason(t)}</b> — אין עבודה היום</div>`)
+    : `<table><thead><tr><th>אתר</th><th>בוצעו</th><th>ביצוע</th><th>סטטוס</th></tr></thead><tbody>${rows}</tbody></table>`;
+
+  const pct = tot? Math.round(dn/tot*100):0;
+  const allTasks = DATA.sites.reduce((a,s)=>a+s.elements.reduce((b,e)=>b+FREQS.reduce((c,f)=>c+(e.tasks[f]||[]).length,0),0),0);
+  document.getElementById('dStats').innerHTML = `
+    <div class="stat"><div class="n">${DATA.sites.length}</div><div class="l">אתרים במערכת</div></div>
+    <div class="stat"><div class="n">${DATA.sites.reduce((a,s)=>a+realElements(s).length,0)}</div><div class="l">אלמנטים ממופים</div></div>
+    <div class="stat"><div class="n">${allTasks}</div><div class="l">משימות מוגדרות</div></div>
+    <div class="stat"><div class="n" style="color:${pct>=90?'var(--ok)':pct>=60?'var(--warn)':'var(--bad)'}">${isOff(t)?'—':pct+'%'}</div><div class="l">ביצוע כולל היום</div></div>`;
+
+  let h='<thead><tr><th>תאריך</th><th>יום</th>'+DATA.sites.map(s=>`<th>${s.name}</th>`).join('')+'</tr></thead><tbody>';
+  for(let i=0;i<14;i++){
+    const d=addDays(t,-i);
+    if(isOff(d)){ h+=`<tr><td>${heDate(d)}</td><td>${DAYS_HE[dow(d)]}</td><td colspan="${DATA.sites.length}" style="color:var(--muted)">${offReason(d)}</td></tr>`; continue; }
+    h+=`<tr><td>${heDate(d)}</td><td>${DAYS_HE[dow(d)]}</td>`+DATA.sites.map((s,j)=>{
+      const st=dayStats(j,d); return `<td>${st.total? pill(st.pct)+` <small style="color:var(--muted)">${st.done}/${st.total}</small>`:'—'}</td>`;
+    }).join('')+'</tr>';
+  }
+  document.getElementById('dHist').innerHTML=h+'</tbody>';
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+function ruleText(r){
+  if(!r) return '—';
+  if(r.f==='daily') return 'כל יום עבודה';
+  if(r.f==='weekly') return 'יום '+DAYS_HE[r.dow];
+  if(r.f==='monthly') return 'שבוע '+r.week+' · יום '+DAYS_HE[r.dow];
+  return 'מחזור '+(r.month+1)+' · שבוע '+r.week+' · יום '+DAYS_HE[r.dow];
+}
+
+function renderPlan(){
+  const si=+document.getElementById('pSite').value;
+  const freq=document.getElementById('pFreq').value;
+  const plan=ensurePlan(si);
+  const all=siteTasks(si);
+
+  // מסנן החללים — לפי סוג חלל, לא לפי אלמנט בודד
+  const spaces=[...new Set(all.map(t=>t.space))];
+  const sel=document.getElementById('pSpace'), keep=sel.value;
+  sel.innerHTML='<option value="">כל החללים</option>'+
+    spaces.map(s=>`<option ${keep===s?'selected':''}>${esc(s)}</option>`).join('');
+  const filt=sel.value;
+
+  // קיבוץ: שורה אחת לכל (סוג חלל × טקסט משימה)
+  const groups=[], gi={};
+  all.filter(t=>t.freq===freq && (!filt || t.space===filt)).forEach(t=>{
+    const k=t.space+' '+t.text;
+    if(gi[k]===undefined){ gi[k]=groups.length; groups.push({space:t.space, text:t.text, items:[], custom:t.custom}); }
+    groups[gi[k]].items.push(t);
+  });
+
+  // עומס יומי
+  const load={}; WORKDAYS.forEach(d=>load[d]=0);
+  all.forEach(t=>{
+    const r=plan[t.key]; if(!r) return;
+    if(r.f==='daily') WORKDAYS.forEach(d=>load[d]++);
+    else if(r.f==='weekly') load[r.dow]++;
+    else if(r.f==='monthly') load[r.dow]+=0.25;
+    else if(r.f==='semiannual') load[r.dow]+=1/26;
+  });
+  const edited=siteEdited(si);
+  document.getElementById('pLoad').innerHTML =
+    '<b>עומס יומי ממוצע:</b> ' + WORKDAYS.map(d=>`${DAYS_HE[d]} — ${Math.round(load[d])}`).join(' · ') +
+    (edited?` <span style="color:var(--warn)">· באתר זה בוצעו ${edited} שינויים ידניים ברשימת המשימות</span>`:'');
+
+  const opt=(v,lbl,cur)=>`<option value="${v}" ${v===cur?'selected':''}>${lbl}</option>`;
+  const selects=(target, r, blank)=>{
+    const b = blank ? '<option value="">— שנה את כולם —</option>' : '';
+    let h='';
+    if(freq==='weekly'||freq==='monthly'||freq==='semiannual'){
+      if(freq==='semiannual')
+        h+=`<select onchange="${target}('month',this.value)">${b}`+[0,1,2,3,4,5].map(m=>opt(m,'מחזור '+(m+1),blank?null:r.month)).join('')+'</select> ';
+      if(freq!=='weekly')
+        h+=`<select onchange="${target}('week',this.value)">${b}`+WEEKS_IN_MONTH.map(w=>opt(w,'שבוע '+w,blank?null:r.week)).join('')+'</select> ';
+      h+=`<select onchange="${target}('dow',this.value)">${b}`+WORKDAYS.map(d=>opt(d,'יום '+DAYS_HE[d],blank?null:r.dow)).join('')+'</select>';
+    }
+    return h;
+  };
+
+  let h='<thead><tr><th style="width:180px">סוג חלל</th><th>משימה</th>'
+      + '<th style="width:300px">מתי מבוצע</th><th style="width:50px"></th></tr></thead><tbody>';
+
+  h += groups.map((g,ix)=>{
+    const n=g.items.length, first=g.items[0];
+    const texts=[...new Set(g.items.map(t=>ruleText(plan[t.key])))];
+    let ctrl;
+    if(freq==='daily'){
+      ctrl='<span style="color:var(--muted)">בכל יום עבודה (א–ו)</span>';
+    } else if(n===1){
+      ctrl=selects(`R('${first.key}')`, plan[first.key], false);
+    } else if(texts.length===1){
+      ctrl=selects(`G(${ix})`, plan[first.key], false)
+         + ` <button class="lnk" onclick="togDetail(${ix})">פירוט ${n} חללים</button>`;
+    } else {
+      ctrl=`<span style="color:var(--muted)">מפוזר על פני ${texts.length} מועדים</span> `
+         + selects(`G(${ix})`, {}, true)
+         + ` <button class="lnk" onclick="togDetail(${ix})">פירוט ${n} חללים</button>`;
+    }
+
+    const detail = n>1 ? `<tr class="detail hide" id="dt${ix}"><td></td><td colspan="3">
+        <div class="dgrid">${g.items.map(t=>
+          `<div class="drow"><b>${esc(t.code)}</b>${selects(`R('${t.key}')`, plan[t.key], false)}</div>`).join('')}</div>
+      </td></tr>` : '';
+
+    return `<tr>
+      <td>${esc(g.space)}${n>1?` <span class="xn">×${n}</span>`:''}</td>
+      <td><input class="tedit" value="${esc(g.text)}" onchange="setTaskText(${si},'${first.key}',this.value)">
+          ${g.custom?'<span class="badge b-weekly">נוספה ידנית</span>':''}</td>
+      <td>${ctrl}</td>
+      <td><button class="del" title="מחיקת המשימה" onclick="delTask(${si},'${first.key}')">✕</button></td>
+    </tr>${detail}`;
+  }).join('');
+
+  if(!groups.length) h+='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:26px">אין משימות בתדירות זו</td></tr>';
+  document.getElementById('pTbl').innerHTML=h+'</tbody>';
+  planGroups=groups;
+}
+let planGroups=[];
+
+function togDetail(ix){ document.getElementById('dt'+ix).classList.toggle('hide'); }
+// R = שינוי שיבוץ של משימה בודדת | G = שינוי כל החללים בשורה
+function R(key){ return (field,val)=>{ if(val==='') return; setRule(key,field,val); }; }
+function G(ix){ return (field,val)=>{
+  if(val==='') return;
+  const si=+document.getElementById('pSite').value, plan=ensurePlan(si);
+  planGroups[ix].items.forEach(t=>{ if(plan[t.key]) plan[t.key][field]=+val; });
+  save(); renderPlan(); toast(`השיבוץ עודכן ב-${planGroups[ix].items.length} חללים`);
+};}
+function setRule(key, field, val){
+  const si=+document.getElementById('pSite').value;
+  const plan=ensurePlan(si);
+  if(plan[key]) plan[key][field]=+val;
+  save(); renderPlan(); toast('השיבוץ עודכן');
+}
+
+/* ---- טופס הוספת משימה ---- */
+function toggleAddForm(){
+  const box=document.getElementById('pAdd');
+  box.classList.toggle('hide');
+  if(!box.classList.contains('hide')){ fillAddSpaces(); document.getElementById('aText').focus(); }
+}
+function fillAddSpaces(){
+  const si=+document.getElementById('pSite').value;
+  const els=DATA.sites[si].elements;
+  // "כללי" ראשון ברשימה — הוא הבחירה הפחות מובנת מאליה ולכן צריך להיות גלוי
+  const spaces=[GENERAL_SPACE, ...new Set(els.filter(e=>!e.general).map(e=>e.space))];
+  document.getElementById('aSpace').innerHTML =
+    spaces.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');
+  document.getElementById('aFreq').value=document.getElementById('pFreq').value;
+  fillAddEls();
+}
+function fillAddEls(){
+  const si=+document.getElementById('pSite').value;
+  const space=document.getElementById('aSpace').value;
+  const list=DATA.sites[si].elements.map((e,i)=>({e,i})).filter(({e})=>e.space===space);
+  document.getElementById('aEl').innerHTML =
+    (list.length>1 ? `<option value="*">כל ${list.length} החללים</option>` : '') +
+    list.map(({e,i})=>`<option value="${i}">${esc(e.code)}</option>`).join('');
+}
+function submitAdd(){
+  const si=+document.getElementById('pSite').value;
+  const space=document.getElementById('aSpace').value;
+  const pick=document.getElementById('aEl').value;
+  const eis = pick==='*'
+    ? DATA.sites[si].elements.map((e,i)=>({e,i})).filter(({e})=>e.space===space).map(({i})=>i)
+    : [+pick];
+  addTask(si, eis, document.getElementById('aFreq').value, document.getElementById('aText').value);
+  document.getElementById('aText').value='';
+}
+function autoDistribute(){
+  const si=+document.getElementById('pSite').value;
+  if(!confirm('לפזר מחדש את כל השיבוצים באתר זה? שינויים ידניים שבוצעו יימחקו.')) return;
+  ensurePlan(si,true); renderPlan(); toast('התכנית פוזרה מחדש');
+}
+
+function renderOff(){
+  renderCats(); renderHolidays();
+  const L=[...db.offdays].sort((a,b)=>a.date<b.date?-1:1);
+  document.getElementById('offList').innerHTML = L.length
+    ? `<div class="chips">${L.map((o,i)=>`<span class="chip">${heDate(o.date)} · ${o.name} <button onclick="delOff(${i})">✕</button></span>`).join('')}</div>`
+    : '<div class="empty" style="padding:26px"><div class="ic">📅</div>לא נוספו ימים ידנית</div>';
+}
+
+/* ---- קטגוריות מועדים ---- */
+function renderCats(){
+  document.getElementById('catList').innerHTML =
+    `<div class="catgrid">${Object.keys(CATS).map(k=>{
+      const on=db.closedCats.includes(k);
+      return `<label class="cat ${on?'on':''}">
+        <input type="checkbox" ${on?'checked':''} onchange="toggleCat('${k}')">
+        <span><b>${CATS[k].he}</b><small>${CATS[k].desc}</small></span>
+        <span class="pill ${on?'p-bad':'p-ok'}">${on?'סגור':'יום עבודה'}</span>
+      </label>`;
+    }).join('')}</div>`;
+}
+function toggleCat(k){
+  const i=db.closedCats.indexOf(k);
+  if(i<0) db.closedCats.push(k); else db.closedCats.splice(i,1);
+  save(); renderOff(); renderDash(); renderRep();
+  toast(CATS[k].he + (i<0?' — סומן כיום ללא עבודה':' — סומן כיום עבודה'));
+}
+
+/* ---- טבלת המועדים ---- */
+function renderHolidays(){
+  const from=todayStr(), to=addDays(from,400);
+  const rows=holidaysBetween(from,to);
+  let h='<thead><tr><th style="width:110px">תאריך</th><th style="width:70px">יום</th>'
+      + '<th style="width:150px">תאריך עברי</th><th>מועד</th><th style="width:120px">קטגוריה</th>'
+      + '<th style="width:110px">סטטוס</th><th style="width:120px"></th></tr></thead><tbody>';
+  h += rows.map(r=>{
+    const sat = dow(r.date)===6;
+    const forcedOpen = db.openDates.includes(r.date);
+    const manual = db.offdays.some(o=>o.date===r.date);
+    const off = isOff(r.date);
+    let status, btn='';
+    if(sat){ status='<span class="pill p-bad">שבת</span>'; }
+    else if(manual){ status='<span class="pill p-bad">סגור ידנית</span>'; }
+    else if(off){
+      status='<span class="pill p-bad">אין עבודה</span>';
+      btn=`<button class="btn g sm" onclick="forceOpen('${r.date}')">פתח לעבודה</button>`;
+    } else {
+      status='<span class="pill p-ok">יום עבודה</span>';
+      btn = forcedOpen
+        ? `<button class="btn g sm" onclick="undoOpen('${r.date}')">בטל חריג</button>`
+        : `<button class="btn g sm" onclick="forceClose('${r.date}','${r.name.replace(/'/g,"")}')">סגור</button>`;
+    }
+    return `<tr><td>${heDate(r.date)}</td><td>${DAYS_HE[dow(r.date)]}</td><td>${hebDateStr(r.date)}</td>
+      <td><b>${r.name}</b>${forcedOpen?' <small style="color:var(--warn)">· חריג ידני</small>':''}</td>
+      <td><small style="color:var(--muted)">${CATS[r.cat].he}</small></td>
+      <td>${status}</td><td>${btn}</td></tr>`;
+  }).join('');
+  document.getElementById('holTbl').innerHTML = h+'</tbody>';
+}
+function forceOpen(d){ if(!db.openDates.includes(d)) db.openDates.push(d); save(); renderOff(); renderDash(); toast('המועד סומן כיום עבודה'); }
+function undoOpen(d){ db.openDates=db.openDates.filter(x=>x!==d); save(); renderOff(); renderDash(); toast('החריג בוטל'); }
+function forceClose(d,name){
+  db.openDates=db.openDates.filter(x=>x!==d);
+  if(!db.offdays.some(o=>o.date===d)) db.offdays.push({date:d, name});
+  save(); renderOff(); renderDash(); toast('המועד סומן כיום ללא עבודה');
+}
+function addOff(){
+  const d=document.getElementById('offDate').value, n=document.getElementById('offName').value.trim();
+  if(!d) return toast('יש לבחור תאריך');
+  if(db.offdays.some(o=>o.date===d)) return toast('התאריך כבר מוגדר');
+  db.offdays.push({date:d, name:n||'יום ללא עבודה'});
+  save(); document.getElementById('offName').value=''; renderOff(); renderDash(); toast('נוסף');
+}
+function delOff(i){
+  const L=[...db.offdays].sort((a,b)=>a.date<b.date?-1:1);
+  db.offdays = db.offdays.filter(o=>o.date!==L[i].date);
+  save(); renderOff(); renderDash();
+}
+
+function repData(){
+  const si=+document.getElementById('rSite').value;
+  const from=document.getElementById('rFrom').value, to=document.getElementById('rTo').value;
+  const rows=[]; let tot=0,dn=0,days=0,closed=0;
+  if(!from||!to||from>to) return {si,rows,tot,dn,days,closed};
+  const miss={};
+  for(let d=from; d<=to; d=addDays(d,1)){
+    if(isOff(d)) continue;
+    const list=dailyPlan(si,d);
+    if(!list.length) continue;
+    const rec=getDone(si,d)||{tasks:{}};
+    const D=rec.tasks; days++; if(rec.closed) closed++;
+    list.forEach(t=>{
+      tot++;
+      if(D[t.key]) dn++;
+      else { const k=t.code+'|'+t.space+'|'+t.text+'|'+t.freq; miss[k]=(miss[k]||0)+1; }
+    });
+    rows.push({date:d, total:list.length, done:list.filter(t=>D[t.key]).length, closed:!!rec.closed});
+  }
+  return {si,rows,tot,dn,days,closed,miss};
+}
+function renderRep(){
+  const R=repData();
+  const pct=R.tot?Math.round(R.dn/R.tot*100):0;
+  document.getElementById('rStats').innerHTML=`
+    <div class="stat"><div class="n">${R.days}</div><div class="l">ימי עבודה בתקופה</div></div>
+    <div class="stat"><div class="n">${R.tot}</div><div class="l">משימות מתוכננות</div></div>
+    <div class="stat"><div class="n" style="color:${pct>=90?'var(--ok)':pct>=60?'var(--warn)':'var(--bad)'}">${pct}%</div><div class="l">שיעור ביצוע</div></div>
+    <div class="stat"><div class="n">${R.tot-R.dn}</div><div class="l">משימות שלא בוצעו</div></div>`;
+
+  const miss=Object.entries(R.miss||{}).sort((a,b)=>b[1]-a[1]).slice(0,60);
+  let h='<thead><tr><th style="width:60px">אלמנט</th><th style="width:150px">חלל</th><th>משימה</th><th style="width:80px">תדירות</th><th style="width:90px">פעמים</th></tr></thead><tbody>';
+  h+=miss.map(([k,c])=>{const [code,space,text,f]=k.split('|');
+    return `<tr><td><b>${code}</b></td><td>${space}</td><td>${text}</td><td><span class="badge ${FREQ_CLS[f]}">${FREQ_HE[f]}</span></td><td><b style="color:var(--bad)">${c}</b></td></tr>`;}).join('');
+  if(!miss.length) h+='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:26px">כל המשימות בוצעו — או שאין נתונים בתקופה זו</td></tr>';
+  document.getElementById('rTbl').innerHTML=h+'</tbody>';
+}
+function exportCSV(){
+  const R=repData(), site=DATA.sites[R.si].name;
+  let csv='אתר,תאריך,יום,אלמנט,חלל,משימה,תדירות,בוצע\n';
+  const from=document.getElementById('rFrom').value, to=document.getElementById('rTo').value;
+  for(let d=from; d<=to; d=addDays(d,1)){
+    if(isOff(d)) continue;
+    const D=(getDone(R.si,d)||{tasks:{}}).tasks;
+    dailyPlan(R.si,d).forEach(t=>{
+      csv+=[site,heDate(d),DAYS_HE[dow(d)],t.code,t.space,'"'+t.text.replace(/"/g,'""')+'"',FREQ_HE[t.freq],D[t.key]?'כן':'לא'].join(',')+'\n';
+    });
+  }
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='דוח_ניקיון_'+site+'_'+from+'_'+to+'.csv'; a.click();
+  toast('הדוח יוצא');
+}
+
+/* ================= הדפסה / PDF =================
+   נבנה גיליון ייעודי ונפתח דיאלוג ההדפסה של הדפדפן.
+   ב"יעד" אפשר לבחור מדפסת או "שמירה כ-PDF".              */
+function printSheet(si, day){
+  const site=DATA.sites[si];
+  const D=(getDone(si,day)||{tasks:{}}).tasks||{};
+  const rec=getDone(si,day)||{};
+  const hol=getHoliday(day);
+
+  const head=`<div class="phead">
+      <div>
+        <div class="pt1">תכנית ניקיון יומית</div>
+        <div class="pt2">עזר מציון · ${esc(site.city)} · ${esc(site.address)}</div>
+      </div>
+      <div class="pmeta">
+        <b>יום ${DAYS_HE[dow(day)]} · ${heDate(day)}</b><br>
+        ${hebDateStr(day)}${hol?' · '+esc(hol.name):''}
+      </div>
+    </div>`;
+
+  if(isOff(day)){
+    return `<div class="psheet">${head}<div class="pnote">
+      ${dow(day)===6?'אין עבודה בשבת':esc(offReason(day))+' — אין עבודה היום'}
+    </div></div>`;
+  }
+
+  const groups=groupPlan(si,day);
+  const list=groups.flatMap(g=>g.els.flatMap(e=>e.tasks));
+  if(!list.length) return `<div class="psheet">${head}<div class="pnote">אין משימות מתוזמנות ליום זה</div></div>`;
+
+  const byFreq={}; list.forEach(t=>byFreq[t.freq]=(byFreq[t.freq]||0)+1);
+  const doneN=list.filter(t=>D[t.key]).length;
+  const carryN=list.filter(t=>t.carry).length;
+  const sum=`<div class="psum"><b>${list.length} משימות</b> ב-${groups.length} סוגי חללים · `
+    + FREQS.filter(f=>byFreq[f]).map(f=>FREQ_HE[f]+': '+byFreq[f]).join(' · ')
+    + (carryN?` · <b>${carryN} משימות הועברו מיום סגור</b>`:'')
+    + (doneN?` · בוצעו ${doneN}`:'') + '</div>';
+
+  const cell=t=> t ? (D[t.key] ? '<span class="dn">✔</span>' : '<span class="bx"></span>') : '<span class="na">—</span>';
+
+  const body=groups.map(g=>{
+    const n=g.els.length;
+    let tbl;
+    if(n===1){
+      tbl=`<table class="pt"><tbody>${g.els[0].tasks.map(t=>
+        `<tr><td class="pc">${cell(t)}</td><td>${esc(t.text)}${t.carry?'<span class="pcarry">הועבר</span>':''}</td>
+         <td class="pf">${FREQ_HE[t.freq]}</td></tr>`).join('')}</tbody></table>`;
+    } else {
+      // מטריצה: שורה למשימה, עמודה לכל חלל — חוסך שכפול של טבלאות זהות
+      const rows=[], seen={};
+      g.els.forEach(e=>e.tasks.forEach(t=>{
+        if(seen[t.text]===undefined){ seen[t.text]=rows.length; rows.push({text:t.text,freq:t.freq,carry:t.carry}); }
+      }));
+      const chunks=[]; for(let i=0;i<n;i+=9) chunks.push(g.els.slice(i,i+9));
+      tbl=chunks.map(ch=>`<table class="pt"><thead><tr><th>משימה</th><th class="pf">תדירות</th>
+        ${ch.map(e=>`<th class="pc">${esc(e.code)}</th>`).join('')}</tr></thead><tbody>
+        ${rows.map(x=>`<tr><td>${esc(x.text)}${x.carry?'<span class="pcarry">הועבר</span>':''}</td>
+          <td class="pf">${FREQ_HE[x.freq]}</td>
+          ${ch.map(e=>`<td class="pc">${cell(e.tasks.find(t=>t.text===x.text))}</td>`).join('')}</tr>`).join('')}
+        </tbody></table>`).join('');
+    }
+    const isGen = DATA.sites[si].elements[g.els[0].ei].general;
+    const ttl = isGen ? esc(g.space)
+              : esc(g.space) + (n>1 ? ` — ${n} חללים (${g.els.map(e=>e.code).join(', ')})` : ' — '+g.els[0].code);
+    return `<div class="pgrp"><h3>${ttl}</h3>${tbl}</div>`;
+  }).join('');
+
+  const sign=`<div class="psign">
+      <div>שם המנקה: <span></span></div>
+      <div>שעת סיום: <span></span></div>
+      <div>חתימת המנקה: <span></span></div>
+      <div>בדיקת מפקח: <span></span></div>
+    </div>`;
+
+  return `<div class="psheet">${head}${sum}${body}${sign}</div>`;
+}
+
+function doPrint(sheets){
+  document.getElementById('printArea').innerHTML = sheets;
+  setTimeout(()=>window.print(), 60);
+}
+function printCleanerDay(){ doPrint(printSheet(cur.site, cur.day)); }
+function printSupDay(){
+  const si=document.getElementById('prSite').value;
+  const day=document.getElementById('prDate').value || todayStr();
+  const sheets = si==='*'
+    ? DATA.sites.map((s,i)=>printSheet(i,day)).join('')
+    : printSheet(+si, day);
+  doPrint(sheets);
+}
+
+/* ================= MISC ================= */
+let tt;
+function toast(m){ const e=document.getElementById('toast'); e.textContent=m; e.classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>e.classList.remove('on'),2200); }
+
+renderHome();
+document.getElementById('btnSwitch').classList.add('hide');
+</script>
+</body>
+</html>
