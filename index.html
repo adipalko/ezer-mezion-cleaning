@@ -101,7 +101,7 @@ h3{font-size:15px;margin:0 0 8px;font-weight:700}
 @media(min-width:1000px){#cList{grid-template-columns:repeat(2,1fr)}}
 @media(min-width:1500px){#cList{grid-template-columns:repeat(3,1fr)}}
 .elem{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
-.elemH{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;background:#f8fbfd;user-select:none}
+.elemH{display:flex;flex-wrap:wrap;row-gap:8px;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;background:#f8fbfd;user-select:none}
 .elemH:hover{background:var(--brand-tint)}
 .elemH .code{background:var(--brand);color:#fff;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700;min-width:36px;text-align:center}
 .elemH .nm{font-weight:600;flex:1}
@@ -113,6 +113,17 @@ h3{font-size:15px;margin:0 0 8px;font-weight:700}
 .elem.done .elemH .cnt{color:var(--ok);font-weight:600}
 .elemH .multi{font-size:11.5px;color:var(--brand-d);background:var(--brand-tint);
   border-radius:99px;padding:2px 9px;font-weight:600;white-space:nowrap}
+.refSel{border:1px solid var(--line);border-radius:8px;padding:5px 8px;font-size:12.5px;color:var(--ink);
+  background:#fff;max-width:150px;flex:none}
+.refSel.flag{border-color:var(--bad);color:var(--bad)}
+.refText{border:1px solid var(--bad);border-radius:8px;padding:5px 8px;font-size:12.5px;color:var(--ink);
+  background:#fff;flex:1;min-width:140px}
+
+/* קיבוץ חללים מאותו סוג במסך הרפרנט */
+.refGroup{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;margin-bottom:11px}
+.refGroupHead{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f8fbfd;border-bottom:1px solid var(--line);font-weight:700}
+.refRow{display:flex;flex-wrap:wrap;row-gap:8px;align-items:center;gap:10px;padding:11px 14px;border-top:1px solid #f0f5f8}
+.refRow:first-child{border-top:0}
 
 /* סרגל החלל: טאבים לחללים זהים + סימון קבוצתי */
 .gbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 13px;
@@ -130,9 +141,10 @@ h3{font-size:15px;margin:0 0 8px;font-weight:700}
 
 .task{display:flex;align-items:flex-start;gap:11px;padding:11px 15px;border-top:1px solid #f0f5f8;cursor:pointer}
 .task:hover{background:#fafcfe}
-.task .box{width:23px;height:23px;border:2px solid #c3d3de;border-radius:6px;flex:none;display:flex;
+.box{width:23px;height:23px;border:2px solid #c3d3de;border-radius:6px;flex:none;display:flex;
   align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;margin-top:1px;transition:.15s}
 .task.on .box{background:var(--ok);border-color:var(--ok)}
+.elemH .box.on{background:var(--ok);border-color:var(--ok)}
 .task.on .lbl{text-decoration:line-through;color:var(--muted)}
 .task .lbl{flex:1}
 .badge{font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600;white-space:nowrap;flex:none;margin-top:2px}
@@ -246,6 +258,7 @@ table.pt th,table.pt td{border:1px solid #999;padding:3.5px 6px;text-align:right
 table.pt th{background:#efefef;font-size:8.5pt;font-weight:700}
 table.pt td.pc,table.pt th.pc{text-align:center;width:30px}
 table.pt td.pf,table.pt th.pf{width:62px;text-align:center;font-size:8pt;color:#444}
+table.pt td.psp{font-weight:700;background:#f7f7f7}
 .bx{display:inline-block;width:12px;height:12px;border:1.4px solid #333;border-radius:2px}
 .dn{font-weight:700;font-size:11pt}
 .na{color:#bbb}
@@ -290,6 +303,32 @@ table.pt td.pf,table.pt th.pf{width:62px;text-align:center;font-size:8pt;color:#
       </div>
       <div class="foundTxt" id="foundTxt"></div>
       <div class="grid" id="siteGrid"></div>
+      <button class="btn g sm" id="btnAddSite" onclick="toggleAddSiteForm()" style="margin-top:14px">+ הוספת סניף</button>
+    </div>
+
+    <div class="card hide" id="addSiteCard">
+      <h2>הוספת סניף חדש</h2>
+      <p class="sub">קודם פרטי הסניף, ואז הרכבת רשימת החללים: בוחרים סוג חלל וכמות, ומוסיפים לרשימה — חללים מאותו סוג מרוכזים יחד (למשל "חדר טיפול × 4").</p>
+      <div class="row">
+        <div><label class="f">עיר</label><input type="text" id="nsCity" placeholder="לדוגמה: חולון"></div>
+        <div style="flex:1;min-width:200px"><label class="f">כתובת</label><input type="text" id="nsAddress" placeholder="לדוגמה: ויצמן 5" style="width:100%"></div>
+      </div>
+
+      <div class="row">
+        <div style="flex:1;min-width:220px"><label class="f">סוג חלל</label>
+          <select id="nsSpaceType" onchange="toggleNewSpaceType()"></select></div>
+        <div id="nsCustomWrap" class="hide"><label class="f">שם סוג חדש</label><input type="text" id="nsCustomName" placeholder="לדוגמה: חדר ישיבות"></div>
+        <div><label class="f">כמות</label><input type="number" id="nsQty" value="1" min="1" style="width:80px"></div>
+        <button class="btn g sm" onclick="addSpaceToNewSite()">+ הוספה לרשימה</button>
+      </div>
+      <div class="note blue" id="nsNote">חללים מסוג חדש ייווצרו ללא רשימת משימות — ניתן להוסיף להם משימות לאחר יצירת הסניף, דרך לשונית "תכנית עבודה" של המפקח.</div>
+
+      <div id="nsList"></div>
+
+      <div class="row" style="margin-top:14px">
+        <button class="btn" onclick="createSite()">יצירת הסניף</button>
+        <button class="btn g" onclick="toggleAddSiteForm(false)">ביטול</button>
+      </div>
     </div>
   </div>
 
@@ -301,6 +340,9 @@ table.pt td.pf,table.pt th.pf{width:62px;text-align:center;font-size:8pt;color:#
       <div class="roleRow">
         <div class="roleBox" onclick="enter('cleaner')">
           <div class="ic">🧹</div><b>מנקה</b><small>תכנית העבודה שלי להיום</small>
+        </div>
+        <div class="roleBox" onclick="enter('ref')">
+          <div class="ic">🔍</div><b>רפרנט</b><small>בדיקת ניקיון ואישור</small>
         </div>
         <div class="roleBox" onclick="enter('super')">
           <div class="ic">📋</div><b>מפקח ניקיון</b><small>הגדרת תכנית, בקרה ודוחות</small>
@@ -326,8 +368,7 @@ table.pt td.pf,table.pt th.pf{width:62px;text-align:center;font-size:8pt;color:#
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
         </button>
         <div style="flex:1"></div>
-        <button class="btn g sm" id="btnExpand" onclick="toggleAllGroups()">פתיחת הכל</button>
-        <button class="btn g sm" onclick="printCleanerDay()">🖨 הדפסה / PDF</button>
+        <button class="btn g sm" id="btnExpand" onclick="markAllDay()">סימון הכל</button>
         <button class="btn g sm" onclick="setDay(todayStr())">היום</button>
       </div>
       <div id="cClosed"></div>
@@ -337,6 +378,45 @@ table.pt td.pf,table.pt th.pf{width:62px;text-align:center;font-size:8pt;color:#
       </div>
     </div>
     <div id="cList"></div>
+  </div>
+
+  <!-- ============ REFERENT ============ -->
+  <div id="vRef" class="hide">
+    <div class="card">
+      <div class="dayhead">
+        <button class="navbtn" onclick="shiftDay(-1)" title="היום הקודם" aria-label="היום הקודם">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+        <div>
+          <div class="d1" id="rfDay"></div>
+          <div class="d2" id="rfDate"></div>
+        </div>
+        <button class="navbtn" onclick="shiftDay(1)" title="היום הבא" aria-label="היום הבא">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <div style="flex:1"></div>
+        <button class="btn g sm" onclick="printRefDay()">🖨 הדפסה / PDF</button>
+        <button class="btn g sm" onclick="setDay(todayStr())">היום</button>
+      </div>
+      <div id="rfClosed"></div>
+      <div id="rfProgWrap">
+        <div class="prog"><i id="rfBar" style="width:0%"></i></div>
+        <div class="progtxt"><span id="rfTxt"></span><span id="rfPct"></span></div>
+      </div>
+      <div class="note" id="rfStatus" style="margin-top:10px"></div>
+      <div class="row" id="rfActions" style="margin:0">
+        <button class="btn g sm" id="btnRefAll" onclick="markAllApprove()">אישור כל החללים</button>
+        <button class="btn sm" onclick="submitReview()">📨 שליחה לאישור</button>
+        <button class="btn g sm" style="border-color:var(--bad);color:var(--bad)" onclick="reportNotCleaned()">⚠ דיווח: הסניף לא נוקה היום</button>
+      </div>
+      <div class="row" id="rfTaskRow" style="margin-top:10px">
+        <div style="flex:1;min-width:220px"><label class="f">פנייה חד-פעמית למפקח</label>
+          <input type="text" id="rfTaskText" placeholder="לדוגמה: לתקן ברז דולף במטבחון" style="width:100%"></div>
+        <button class="btn g sm" onclick="addRefTask()">➕ שליחת בקשה</button>
+      </div>
+      <div id="rfTasks"></div>
+    </div>
+    <div id="rfList"></div>
   </div>
 
   <!-- ============ SUPERVISOR ============ -->
@@ -363,6 +443,11 @@ table.pt td.pf,table.pt th.pf{width:62px;text-align:center;font-size:8pt;color:#
       <div class="card">
         <h2>ביצוע לפי אתר · היום</h2>
         <div id="dToday"></div>
+      </div>
+      <div class="card">
+        <h2>בקשות פתוחות מרפרנטים</h2>
+        <p class="sub">פניות חד-פעמיות שנשלחו מהרפרנטים בעת בדיקת הניקיון.</p>
+        <div id="dTasks"></div>
       </div>
       <div class="card">
         <h2>14 הימים האחרונים</h2>
@@ -455,6 +540,7 @@ table.pt td.pf,table.pt th.pf{width:62px;text-align:center;font-size:8pt;color:#
         <div class="scroll"><table id="rTbl"></table></div>
       </div>
     </div>
+
   </div>
 </div>
 
@@ -488,6 +574,15 @@ DATA.sites.forEach(s=>{
                      tasks:{daily:[],weekly:[],monthly:[],semiannual:[]}});
 });
 function realElements(s){ return s.elements.filter(e=>!e.general); }
+
+/* ספריית תבניות משימות לפי סוג חלל — נבנית מהחללים הקיימים במערכת,
+   ומשמשת ליצירת חללים חדשים בעת הוספת סניף.                        */
+function buildSpaceTemplates(){
+  const out={};
+  DATA.sites.forEach(s=>realElements(s).forEach(e=>{ if(!out[e.space]) out[e.space]=e.tasks; }));
+  return out;
+}
+const SPACE_TEMPLATES = buildSpaceTemplates();
 
 /* ================= לוח שנה עברי =================
    חישוב מלא של התאריך העברי והמועדים, ללא תלות באינטרנט או בספרייה חיצונית.
@@ -630,9 +725,50 @@ function load(){
   let d={};
   try{ const raw=localStorage.getItem(LS); if(raw) d=JSON.parse(raw); }catch(e){}
   return Object.assign({plans:{}, done:{}, offdays:[], openDates:[], closedCats:defaultCats(),
-    taskEdits:{}, taskDel:{}, taskAdd:{}, addSeq:0, meta:{}}, d);
+    taskEdits:{}, taskDel:{}, taskAdd:{}, addSeq:0, meta:{}, review:{}}, d);
 }
-function save(){ try{ localStorage.setItem(LS, JSON.stringify(db)); }catch(e){ toast('שגיאה בשמירה'); } }
+function save(){ try{ localStorage.setItem(LS, JSON.stringify(db)); }catch(e){} }
+
+/* ================= REFERENT REVIEW STORE ================= */
+const REF_COMMENTS = [
+  {v:'', label:'ללא הערה'},
+  {v:'partial', label:'נוקה חלקית'},
+  {v:'dirty', label:'לא נוקה כראוי'},
+  {v:'supplies', label:'חוסר בציוד / חומרי ניקוי'},
+  {v:'redo', label:'נדרש טיפול חוזר'},
+  {v:'other', label:'אחר'}
+];
+const REF_DEDUCTION = 10;
+function reviewKey(siteIdx, s){ return siteIdx+'@'+s; }
+function getReview(siteIdx, s){ return db.review[reviewKey(siteIdx,s)] || null; }
+function ensureReview(siteIdx, s){
+  const k=reviewKey(siteIdx,s);
+  if(!db.review[k]) db.review[k]={approvals:{}, comments:{}, commentText:{}, notCleaned:false, submitted:false, submittedAt:null, tasks:[]};
+  return db.review[k];
+}
+function allOpenRefTasks(){
+  const out=[];
+  Object.keys(db.review).forEach(k=>{
+    const at=k.indexOf('@');
+    const si=+k.slice(0,at), day=k.slice(at+1);
+    (db.review[k].tasks||[]).forEach((t,ti)=>{ if(!t.done) out.push({si, day, ti, text:t.text, at:t.at}); });
+  });
+  return out.sort((a,b)=> new Date(b.at)-new Date(a.at));
+}
+function markTaskDone(si, day, ti){
+  const rv=getReview(si,day);
+  if(!rv || !rv.tasks[ti]) return;
+  rv.tasks[ti].done=true;
+  save();
+  renderDash();
+}
+function refScore(siteIdx, s){
+  const rv=getReview(siteIdx,s);
+  if(!rv || !rv.submitted) return null;
+  if(rv.notCleaned) return 0;
+  const neg=Object.values(rv.comments).filter(c=>c).length;
+  return Math.max(0, 100 - neg*REF_DEDUCTION);
+}
 
 /* ================= DATE HELPERS ================= */
 function todayStr(){ return fmt(new Date()); }
@@ -870,8 +1006,8 @@ function toggleDone(siteIdx, s, key){
 }
 
 /* ================= VIEWS ================= */
-function show(id){ ['vHome','vRole','vClean','vSup'].forEach(v=>document.getElementById(v).classList.toggle('hide', v!==id)); }
-function goHome(){ cur={site:null,role:null,day:todayStr()}; show('vHome'); document.getElementById('ctx').innerHTML=''; document.getElementById('btnSwitch').classList.add('hide'); document.getElementById('stick').classList.add('hide'); }
+function show(id){ ['vHome','vRole','vClean','vRef','vSup'].forEach(v=>document.getElementById(v).classList.toggle('hide', v!==id)); }
+function goHome(){ cur={site:null,role:null,day:todayStr()}; show('vHome'); document.getElementById('ctx').innerHTML=''; document.getElementById('btnSwitch').classList.add('hide'); document.getElementById('stick').classList.add('hide'); renderHome(); }
 
 /* ---------- SITE FINDER ---------- */
 let finderInit=false;
@@ -939,13 +1075,15 @@ function pickSite(i){
 }
 function enter(role){
   cur.role=role; cur.day=todayStr();
-  document.getElementById('ctx').innerHTML = `<b>${DATA.sites[cur.site].name}</b>${role==='cleaner'?'מנקה':'מפקח ניקיון'}`;
+  const roleLbl = role==='cleaner'?'מנקה':role==='ref'?'רפרנט':'מפקח ניקיון';
+  document.getElementById('ctx').innerHTML = `<b>${DATA.sites[cur.site].name}</b>${roleLbl}`;
   if(role==='cleaner'){ show('vClean'); renderClean(); }
+  else if(role==='ref'){ show('vRef'); renderRef(); }
   else { show('vSup'); initSup(); }
 }
 
-/* ---------- CLEANER ---------- */
-function setDay(s){ cur.day=s; renderClean(); }
+/* ---------- CLEANER / REFERENT: DAY NAV ---------- */
+function setDay(s){ cur.day=s; if(cur.role==='ref') renderRef(); else renderClean(); }
 function shiftDay(n){ setDay(addDays(cur.day,n)); }
 
 function renderClean(){
@@ -973,121 +1111,57 @@ function renderClean(){
 
   const D = (getDone(cur.site,s) || {tasks:{}}).tasks || {};
   const groups = groupPlan(cur.site, s);
-  curGroups = groups;
+  curRows = groups.flatMap(g => g.els.map(e => ({space:g.space, code:e.code, tasks:e.tasks})));
 
-  const html = groups.map((g,gi)=>{
-    const multi = g.els.length>1;
-    // תג האלמנט: קוד יחיד, או אות משותפת כשיש כמה (G1..G9 → G)
-    const prefixes=[...new Set(g.els.map(e=>e.code.replace(/\d+/g,'')))];
-    const codeLbl = multi ? (prefixes.length===1 ? prefixes[0] : g.els.length+'×') : g.els[0].code;
-    const tot = g.els.reduce((a,e)=>a+e.tasks.length,0);
-    const dn  = g.els.reduce((a,e)=>a+e.tasks.filter(t=>D[t.key]).length,0);
-
-    const tabs = multi ? `<div class="etabs">${g.els.map((e,i)=>{
-        const d=e.tasks.filter(t=>D[t.key]).length;
-        return `<button class="etab ${i===0?'on':''} ${d===e.tasks.length?'full':''}" data-i="${i}"
-          onclick="etab(${gi},${i})">${e.code}<i>${d}/${e.tasks.length}</i></button>`;
-      }).join('')}</div>` : '<div class="etabs"></div>';
-
-    const panes = g.els.map((e,i)=>`<div class="epane ${i?'hide':''}" data-i="${i}">
-        ${e.tasks.map(t=>`<div class="task ${D[t.key]?'on':''}" data-key="${t.key}" onclick="tap(this)">
-          <span class="box">✓</span>
-          <span class="lbl">${t.text}</span>
-          ${t.carry?`<span class="badge b-carry">הועבר מ-${heDate(t.carryFrom)}</span>`:''}
-          <span class="badge ${FREQ_CLS[t.freq]}">${FREQ_HE[t.freq]}</span>
-        </div>`).join('')}
-      </div>`).join('');
-
-    return `<div class="elem ${dn===tot?'done':''}" id="g${gi}" data-gi="${gi}">
-      <div class="elemH" onclick="document.getElementById('g${gi}').classList.toggle('open')">
-        <span class="code">${codeLbl}</span>
-        <span class="nm">${g.space}</span>
-        ${multi?`<span class="multi">${g.els.length} חללים</span>`:''}
-        <span class="cnt">${dn}/${tot}</span>
-        <span class="chev">‹</span>
-      </div>
-      <div class="elemB">
-        <div class="gbar">
-          ${tabs}
-          <div class="gact">
-            <button class="btn g sm" onclick="markPane(${gi})">${multi?'סימון החלל':'סימון הכל'}</button>
-            ${multi?`<button class="btn g sm" onclick="markGroup(${gi})">סימון כל ${g.els.length} החללים</button>`:''}
-          </div>
-        </div>
-        ${panes}
+  const html = curRows.map((e,ei)=>{
+    const tot = e.tasks.length;
+    const dn  = e.tasks.filter(t=>D[t.key]).length;
+    const on  = tot>0 && dn===tot;
+    return `<div class="elem ${on?'done':''}" data-ei="${ei}">
+      <div class="elemH" onclick="markRow(${ei})">
+        <span class="box ${on?'on':''}">✓</span>
+        <span class="code">${e.code}</span>
+        <span class="nm">${e.space}</span>
       </div>
     </div>`;
   }).join('');
 
   document.getElementById('cList').innerHTML = html || `<div class="card empty"><div class="ic">✨</div>אין משימות מתוזמנות ליום זה</div>`;
-  document.getElementById('btnExpand').textContent='פתיחת הכל';
   updateProg();
 }
 
-let curGroups=[];
+let curRows=[];
 
-/* מעבר בין חללים זהים */
-function etab(gi,i){
-  const box=document.getElementById('g'+gi);
-  box.querySelectorAll('.epane').forEach((p,j)=>p.classList.toggle('hide', j!==i));
-  box.querySelectorAll('.etab').forEach((b,j)=>b.classList.toggle('on', j===i));
+/* סימון חלל בודד / כל החללים יחד */
+function markRow(ei){
+  const e=curRows[ei];
+  if(!e || !e.tasks.length) return;
+  const D=(getDone(cur.site,cur.day)||{tasks:{}}).tasks||{};
+  const on=!e.tasks.every(t=>D[t.key]);
+  e.tasks.forEach(t=>{ if(!!D[t.key]!==on) toggleDone(cur.site,cur.day,t.key); });
+  renderClean();
 }
-function toggleAllGroups(){
-  const boxes=[...document.querySelectorAll('#cList .elem')];
-  if(!boxes.length) return;
-  const open = !boxes.every(b=>b.classList.contains('open'));
-  boxes.forEach(b=>b.classList.toggle('open', open));
-  document.getElementById('btnExpand').textContent = open?'סגירת הכל':'פתיחת הכל';
-}
-
-/* סימון בודד / קבוצתי */
-function tap(el){ setTasks([el], !el.classList.contains('on')); }
-function markPane(gi){
-  const p=document.getElementById('g'+gi).querySelector('.epane:not(.hide)');
-  bulk([...p.querySelectorAll('.task')]);
-}
-function markGroup(gi){
-  bulk([...document.getElementById('g'+gi).querySelectorAll('.task')]);
-}
-function bulk(tasks){
+function markAllDay(){
+  if(!curRows.length) return;
+  const D=(getDone(cur.site,cur.day)||{tasks:{}}).tasks||{};
+  const tasks=curRows.flatMap(e=>e.tasks);
   if(!tasks.length) return;
-  // אם הכול כבר מסומן — ביטול הסימון; אחרת סימון הכול
-  setTasks(tasks, !tasks.every(t=>t.classList.contains('on')));
-}
-function setTasks(tasks, on){
-  tasks.forEach(t=>{
-    if(t.classList.contains('on')===on) return;
-    toggleDone(cur.site, cur.day, t.dataset.key);
-    t.classList.toggle('on', on);
-  });
-  refreshCounts();
-}
-function refreshCounts(){
-  document.querySelectorAll('#cList .elem').forEach(box=>{
-    const tot=box.querySelectorAll('.task').length, dn=box.querySelectorAll('.task.on').length;
-    box.querySelector('.cnt').textContent=dn+'/'+tot;
-    box.classList.toggle('done', tot>0 && dn===tot);
-    box.querySelectorAll('.epane').forEach((p,i)=>{
-      const tab=box.querySelector('.etab[data-i="'+i+'"]');
-      if(!tab) return;
-      const t=p.querySelectorAll('.task').length, d=p.querySelectorAll('.task.on').length;
-      tab.querySelector('i').textContent=d+'/'+t;
-      tab.classList.toggle('full', t>0 && d===t);
-    });
-  });
-  updateProg();
+  const on=!tasks.every(t=>D[t.key]);
+  tasks.forEach(t=>{ if(!!D[t.key]!==on) toggleDone(cur.site,cur.day,t.key); });
+  renderClean();
 }
 
 function updateProg(){
-  const list=dailyPlan(cur.site,cur.day);
-  const D=(getDone(cur.site,cur.day)||{tasks:{}}).tasks;
-  const dn=list.filter(t=>D[t.key]).length, tot=list.length;
+  const D=(getDone(cur.site,cur.day)||{tasks:{}}).tasks||{};
+  const tot=curRows.length;
+  const dn=curRows.filter(e=>e.tasks.length && e.tasks.every(t=>D[t.key])).length;
   const pct= tot? Math.round(dn/tot*100):0;
   document.getElementById('cBar').style.width=pct+'%';
-  document.getElementById('cTxt').textContent=`בוצעו ${dn} מתוך ${tot} משימות`;
+  document.getElementById('cTxt').textContent=`בוצעו ${dn} מתוך ${tot} חללים`;
   document.getElementById('cPct').textContent=pct+'%';
+  document.getElementById('btnExpand').textContent = (tot && dn===tot) ? 'ביטול סימון' : 'סימון הכל';
   const st=document.getElementById('stick');
-  if(tot){ st.classList.remove('hide'); document.getElementById('stickTxt').textContent = dn===tot? 'כל המשימות הושלמו 🎉' : `נותרו ${tot-dn} משימות`; }
+  if(tot){ st.classList.remove('hide'); document.getElementById('stickTxt').textContent = dn===tot? 'כל החללים הושלמו 🎉' : `נותרו ${tot-dn} חללים`; }
   else st.classList.add('hide');
 }
 function finishDay(){
@@ -1096,6 +1170,173 @@ function finishDay(){
   db.done[k].closed=true; db.done[k].closedAt=new Date().toISOString();
   save(); toast('היום אושר ונשלח לדוח המפקח');
 }
+
+/* ---------- REFERENT ---------- */
+let curRefRows=[];
+
+function renderRef(){
+  const s=cur.day;
+  const hol=getHoliday(s);
+  document.getElementById('rfDay').textContent = 'יום ' + DAYS_HE[dow(s)];
+  document.getElementById('rfDate').innerHTML = heDate(s) + ' · ' + hebDateStr(s)
+    + (s===todayStr()?' · <b>היום</b>':'')
+    + (hol && !isOff(s) ? ` · <span style="color:var(--warn)">${hol.name}</span>` : '');
+
+  const closedBox=document.getElementById('rfClosed');
+  if(isOff(s)){
+    closedBox.innerHTML = dow(s)===6
+      ? `<div class="note blue"><b>אין עבודה בשבת</b></div>`
+      : `<div class="note red"><b>${offReason(s)} — אין עבודה היום</b></div>`;
+    document.getElementById('rfProgWrap').classList.add('hide');
+    document.getElementById('rfActions').classList.add('hide');
+    document.getElementById('rfTaskRow').classList.add('hide');
+    document.getElementById('rfTasks').innerHTML='';
+    document.getElementById('rfList').innerHTML='';
+    document.getElementById('rfStatus').innerHTML='';
+    return;
+  }
+  closedBox.innerHTML='';
+  document.getElementById('rfProgWrap').classList.remove('hide');
+  document.getElementById('rfActions').classList.remove('hide');
+  document.getElementById('rfTaskRow').classList.remove('hide');
+
+  const groups = groupPlan(cur.site, s);
+  curRefRows = groups.flatMap(g => g.els.map(e => ({space:g.space, code:e.code, ei:e.ei})));
+  const rv = ensureReview(cur.site, s);
+
+  let ri=0;
+  const html = groups.map(g=>{
+    const rows = g.els.map(e=>{
+      const idx = ri++;
+      const approved = !!rv.approvals[e.ei];
+      const comment = rv.comments[e.ei] || '';
+      return `<div class="refRow">
+        <span class="box ${approved?'on':''}" onclick="toggleApprove(${idx})">✓</span>
+        <span class="code">${e.code}</span>
+        <select class="refSel ${comment?'flag':''}" onchange="setComment(${idx}, this.value)">
+          ${REF_COMMENTS.map(c=>`<option value="${c.v}" ${c.v===comment?'selected':''}>${c.label}</option>`).join('')}
+        </select>
+        ${comment==='other' ? `<input type="text" class="refText" placeholder="פרטו את ההערה..." value="${esc((rv.commentText||{})[e.ei]||'')}" oninput="setCommentText(${idx}, this.value)">` : ''}
+      </div>`;
+    }).join('');
+    return `<div class="refGroup">
+      <div class="refGroupHead">
+        <span>${esc(g.space)}</span>
+        ${g.els.length>1?`<span class="multi">${g.els.length} חללים</span>`:''}
+      </div>
+      ${rows}
+    </div>`;
+  }).join('');
+
+  document.getElementById('rfList').innerHTML = html || `<div class="card empty"><div class="ic">✨</div>אין חללים מתוזמנים ליום זה</div>`;
+  updateRefProg();
+  renderRefStatus();
+  renderRefTasks();
+}
+function renderRefTasks(){
+  const box=document.getElementById('rfTasks');
+  if(!box) return;
+  const rv=getReview(cur.site,cur.day);
+  const tasks=(rv && rv.tasks) || [];
+  if(!tasks.length){ box.innerHTML=''; return; }
+  box.innerHTML = `<div style="margin-top:8px">` + tasks.map(t=>
+    `<div class="note ${t.done?'blue':''}" style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <span>${esc(t.text)}<br><small style="color:var(--muted)">${new Date(t.at).toLocaleString('he-IL')}${t.done?' · טופל':' · ממתין לטיפול המפקח'}</small></span>
+    </div>`).join('') + `</div>`;
+}
+function addRefTask(){
+  const inp=document.getElementById('rfTaskText');
+  const text=inp.value.trim();
+  if(!text) return;
+  const rv=ensureReview(cur.site,cur.day);
+  rv.tasks.push({text, at:new Date().toISOString(), done:false});
+  save();
+  inp.value='';
+  toast('הבקשה נשלחה למפקח');
+  renderRefTasks();
+}
+
+function toggleApprove(ri){
+  const e=curRefRows[ri];
+  if(!e) return;
+  const rv=ensureReview(cur.site,cur.day);
+  rv.approvals[e.ei]=!rv.approvals[e.ei];
+  save();
+  renderRef();
+}
+function setComment(ri, val){
+  const e=curRefRows[ri];
+  if(!e) return;
+  const rv=ensureReview(cur.site,cur.day);
+  if(val) rv.comments[e.ei]=val; else delete rv.comments[e.ei];
+  if(val!=='other') delete rv.commentText[e.ei];
+  save();
+  renderRef();
+}
+function setCommentText(ri, text){
+  const e=curRefRows[ri];
+  if(!e) return;
+  const rv=ensureReview(cur.site,cur.day);
+  rv.commentText[e.ei]=text;
+  save();
+}
+function reportNotCleaned(){
+  const rv=ensureReview(cur.site,cur.day);
+  const msg = rv.notCleaned ? 'לבטל את הדיווח שהסניף לא נוקה ביום זה?' : 'לדווח שהסניף לא נוקה כלל ביום זה? הניקוד לאותו יום יאופס אצל המפקח.';
+  if(!confirm(msg)) return;
+  rv.notCleaned=!rv.notCleaned;
+  save();
+  renderRefStatus();
+  toast(rv.notCleaned ? 'הדיווח נשלח' : 'הדיווח בוטל');
+}
+function submitReview(){
+  const rv=ensureReview(cur.site,cur.day);
+  rv.submitted=true; rv.submittedAt=new Date().toISOString();
+  save();
+  toast('הבדיקה נשלחה לאישור המפקח');
+  renderRefStatus();
+}
+function markAllApprove(){
+  if(!curRefRows.length) return;
+  const rv=ensureReview(cur.site,cur.day);
+  const allOn = curRefRows.every(e=>rv.approvals[e.ei]);
+  curRefRows.forEach(e=>{ rv.approvals[e.ei]=!allOn; });
+  save();
+  renderRef();
+}
+function updateRefProg(){
+  const rv=getReview(cur.site,cur.day);
+  const tot=curRefRows.length;
+  const dn=curRefRows.filter(e=>rv && rv.approvals[e.ei]).length;
+  const pct= tot? Math.round(dn/tot*100):0;
+  document.getElementById('rfBar').style.width=pct+'%';
+  document.getElementById('rfTxt').textContent=`אושרו ${dn} מתוך ${tot} חללים`;
+  document.getElementById('rfPct').textContent=pct+'%';
+  document.getElementById('btnRefAll').textContent = (tot && dn===tot) ? 'ביטול אישור הכל' : 'אישור כל החללים';
+}
+function renderRefStatus(){
+  const rv=getReview(cur.site,cur.day);
+  const box=document.getElementById('rfStatus');
+  if(!box) return;
+  if(!rv || (!rv.submitted && !rv.notCleaned && !Object.keys(rv.comments).length && !Object.keys(rv.approvals).length)){
+    box.className='note';
+    box.innerHTML='טרם בוצעה בדיקה ליום זה.';
+    return;
+  }
+  const neg=Object.values(rv.comments).filter(c=>c).length;
+  const draftScore = rv.notCleaned?0:Math.max(0,100-neg*REF_DEDUCTION);
+  if(rv.notCleaned){
+    box.className='note red';
+    box.innerHTML=`<b>דווח: הסניף לא נוקה ביום זה</b> · ניקוד: 0`;
+  } else if(rv.submitted){
+    box.className='note blue';
+    box.innerHTML=`<b>נשלח לאישור המפקח</b> · ${new Date(rv.submittedAt).toLocaleString('he-IL')} · ניקוד: ${draftScore}`;
+  } else {
+    box.className='note';
+    box.innerHTML=`טיוטה (טרם נשלחה לאישור) ${neg?'· '+neg+' הערות פתוחות ':''}· ניקוד משוער: ${draftScore}`;
+  }
+}
+function printRefDay(){ doPrint(printSpacesSheet(cur.site, cur.day)); }
 
 /* ---------- SUPERVISOR ---------- */
 function initSup(){
@@ -1117,6 +1358,81 @@ function supTab(t,btn){
   btn.classList.add('on');
 }
 
+/* ---------- ניהול סניפים / הוספת סניף ---------- */
+let newSiteSpaces=[];
+function toggleAddSiteForm(show){
+  const card=document.getElementById('addSiteCard');
+  const open = show===undefined ? card.classList.contains('hide') : show;
+  card.classList.toggle('hide', !open);
+  document.getElementById('btnAddSite').classList.toggle('hide', open);
+  if(open) card.scrollIntoView({behavior:'smooth', block:'start'});
+}
+function renderSitesTab(){
+  const types = Object.keys(SPACE_TEMPLATES).sort((a,b)=>a.localeCompare(b,'he'));
+  document.getElementById('nsSpaceType').innerHTML = types.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('')
+    + `<option value="__custom__">➕ סוג חדש...</option>`;
+  document.getElementById('nsCustomWrap').classList.add('hide');
+  renderNsList();
+}
+function toggleNewSpaceType(){
+  const isCustom = document.getElementById('nsSpaceType').value==='__custom__';
+  document.getElementById('nsCustomWrap').classList.toggle('hide', !isCustom);
+}
+function addSpaceToNewSite(){
+  const sel=document.getElementById('nsSpaceType');
+  const isCustom = sel.value==='__custom__';
+  const type = isCustom ? document.getElementById('nsCustomName').value.trim() : sel.value;
+  const qty = Math.max(1, parseInt(document.getElementById('nsQty').value,10)||1);
+  if(!type){ toast('נא לבחור או להזין סוג חלל'); return; }
+  const existing = newSiteSpaces.find(x=>x.type===type);
+  if(existing) existing.qty += qty; else newSiteSpaces.push({type, qty});
+  if(isCustom) document.getElementById('nsCustomName').value='';
+  document.getElementById('nsQty').value=1;
+  renderNsList();
+}
+function removeSpaceFromNewSite(idx){
+  newSiteSpaces.splice(idx,1);
+  renderNsList();
+}
+function renderNsList(){
+  const box=document.getElementById('nsList');
+  if(!newSiteSpaces.length){ box.innerHTML='<p class="sub" style="margin:10px 0 0">טרם נוספו חללים.</p>'; return; }
+  box.innerHTML = '<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">' + newSiteSpaces.map((x,i)=>
+    `<span class="pill p-mid" style="display:inline-flex;align-items:center;gap:8px;padding:6px 10px">${esc(x.type)} × ${x.qty}
+      <button onclick="removeSpaceFromNewSite(${i})" style="border:0;background:transparent;cursor:pointer;color:inherit;font-weight:700;padding:0">✕</button>
+    </span>`).join('') + '</div>';
+}
+function createSite(){
+  const city=document.getElementById('nsCity').value.trim();
+  const address=document.getElementById('nsAddress').value.trim();
+  if(!city || !address){ toast('נא למלא עיר וכתובת'); return; }
+  if(!newSiteSpaces.length){ toast('נא להוסיף לפחות חלל אחד'); return; }
+
+  const elements=[];
+  newSiteSpaces.forEach(({type,qty},i)=>{
+    const letter = String.fromCharCode(65+i);
+    const tasks = SPACE_TEMPLATES[type] ? JSON.parse(JSON.stringify(SPACE_TEMPLATES[type])) : {daily:[],weekly:[],monthly:[],semiannual:[]};
+    for(let n=1;n<=qty;n++){
+      elements.push({code:letter+n, space:type, tasks: JSON.parse(JSON.stringify(tasks))});
+    }
+  });
+  elements.push({code:'כללי', space:GENERAL_SPACE, general:true, tasks:{daily:[],weekly:[],monthly:[],semiannual:[]}});
+
+  DATA.sites.push({name:city+' '+address, city, address, elements});
+  const si = DATA.sites.length-1;
+  ensurePlan(si);
+
+  newSiteSpaces=[];
+  document.getElementById('nsCity').value='';
+  document.getElementById('nsAddress').value='';
+  finderInit=false;
+  initSup();
+  renderSitesTab();
+  renderHome();
+  toggleAddSiteForm(false);
+  toast('הסניף נוצר בהצלחה');
+}
+
 function dayStats(siteIdx, s){
   if(isOff(s)) return null;
   const list=dailyPlan(siteIdx,s);
@@ -1131,15 +1447,20 @@ function renderDash(){
   let tot=0,dn=0,sites=0;
   const rows=DATA.sites.map((s,i)=>{
     const st=dayStats(i,t);
-    if(!st) return `<tr><td>${s.name}</td><td colspan="3" style="color:var(--muted)">אין עבודה</td></tr>`;
+    if(!st) return `<tr><td>${s.name}</td><td colspan="4" style="color:var(--muted)">אין עבודה</td></tr>`;
     tot+=st.total; dn+=st.done; sites++;
+    const rv=getReview(i,t);
+    const rs=refScore(i,t);
+    const rsCell = rv && rv.notCleaned ? '<span class="pill p-bad">הסניף לא נוקה</span>'
+      : rs===null ? '<span style="color:var(--muted)">טרם נבדק</span>' : pill(rs);
     return `<tr><td>${s.name}</td><td>${st.done}/${st.total}</td><td>${pill(st.pct)}</td>
+      <td>${rsCell}</td>
       <td>${st.closed?'<span class="pill p-ok">אושר</span>':'<span class="pill p-mid">בתהליך</span>'}</td></tr>`;
   }).join('');
   document.getElementById('dToday').innerHTML = isOff(t)
     ? (dow(t)===6 ? `<div class="note blue"><b>אין עבודה בשבת</b></div>`
                   : `<div class="note red"><b>${offReason(t)}</b> — אין עבודה היום</div>`)
-    : `<table><thead><tr><th>אתר</th><th>בוצעו</th><th>ביצוע</th><th>סטטוס</th></tr></thead><tbody>${rows}</tbody></table>`;
+    : `<table><thead><tr><th>אתר</th><th>בוצעו</th><th>ביצוע</th><th>ניקוד רפרנט</th><th>סטטוס</th></tr></thead><tbody>${rows}</tbody></table>`;
 
   const pct = tot? Math.round(dn/tot*100):0;
   const allTasks = DATA.sites.reduce((a,s)=>a+s.elements.reduce((b,e)=>b+FREQS.reduce((c,f)=>c+(e.tasks[f]||[]).length,0),0),0);
@@ -1158,6 +1479,13 @@ function renderDash(){
     }).join('')+'</tr>';
   }
   document.getElementById('dHist').innerHTML=h+'</tbody>';
+
+  const openTasks=allOpenRefTasks();
+  document.getElementById('dTasks').innerHTML = openTasks.length ? openTasks.map(tk=>
+    `<div class="note" style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px">
+      <span><b>${esc(DATA.sites[tk.si].name)}</b> · ${heDate(tk.day)}<br>${esc(tk.text)}</span>
+      <button class="btn g sm" onclick="markTaskDone(${tk.si},'${tk.day}',${tk.ti})">סמן כטופל</button>
+    </div>`).join('') : `<div class="empty"><div class="ic">✅</div>אין בקשות פתוחות</div>`;
 }
 
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
@@ -1523,11 +1851,48 @@ function printSheet(si, day){
   return `<div class="psheet">${head}${sum}${body}${sign}</div>`;
 }
 
+/* גיליון פשוט לרפרנט: רשימת חללים בלבד, ללא פירוט משימות */
+function printSpacesSheet(si, day){
+  const site=DATA.sites[si];
+  const hol=getHoliday(day);
+
+  const head=`<div class="phead">
+      <div>
+        <div class="pt1">רשימת חללים לבדיקה</div>
+        <div class="pt2">עזר מציון · ${esc(site.city)} · ${esc(site.address)}</div>
+      </div>
+      <div class="pmeta">
+        <b>יום ${DAYS_HE[dow(day)]} · ${heDate(day)}</b><br>
+        ${hebDateStr(day)}${hol?' · '+esc(hol.name):''}
+      </div>
+    </div>`;
+
+  if(isOff(day)){
+    return `<div class="psheet">${head}<div class="pnote">
+      ${dow(day)===6?'אין עבודה בשבת':esc(offReason(day))+' — אין עבודה היום'}
+    </div></div>`;
+  }
+
+  const groups=groupPlan(si,day);
+  const totalRows=groups.reduce((a,g)=>a+g.els.length,0);
+  if(!totalRows) return `<div class="psheet">${head}<div class="pnote">אין חללים מתוזמנים ליום זה</div></div>`;
+
+  const sum=`<div class="psum"><b>${totalRows} חללים</b> ב-${groups.length} סוגי חללים</div>`;
+  const tbl=`<table class="pt"><tbody>${groups.map(g=>
+      g.els.map((e,i)=>`<tr>
+          ${i===0?`<td class="psp" rowspan="${g.els.length}">${esc(g.space)}${g.els.length>1?` <span style="font-weight:400;color:#666">(${g.els.length})</span>`:''}</td>`:''}
+          <td class="pc"><span class="bx"></span></td>
+          <td class="pf">${esc(e.code)}</td>
+        </tr>`).join('')
+    ).join('')}</tbody></table>`;
+
+  return `<div class="psheet">${head}${sum}${tbl}</div>`;
+}
+
 function doPrint(sheets){
   document.getElementById('printArea').innerHTML = sheets;
   setTimeout(()=>window.print(), 60);
 }
-function printCleanerDay(){ doPrint(printSheet(cur.site, cur.day)); }
 function printSupDay(){
   const si=document.getElementById('prSite').value;
   const day=document.getElementById('prDate').value || todayStr();
@@ -1542,6 +1907,7 @@ let tt;
 function toast(m){ const e=document.getElementById('toast'); e.textContent=m; e.classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>e.classList.remove('on'),2200); }
 
 renderHome();
+renderSitesTab();
 document.getElementById('btnSwitch').classList.add('hide');
 </script>
 </body>
