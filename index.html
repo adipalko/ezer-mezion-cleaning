@@ -119,11 +119,22 @@ h3{font-size:15px;margin:0 0 8px;font-weight:700}
 .refText{border:1px solid var(--bad);border-radius:8px;padding:5px 8px;font-size:12.5px;color:var(--ink);
   background:#fff;flex:1;min-width:140px}
 
-/* קיבוץ חללים מאותו סוג במסך הרפרנט */
-.refGroup{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;margin-bottom:11px}
-.refGroupHead{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f8fbfd;border-bottom:1px solid var(--line);font-weight:700}
-.refRow{display:flex;flex-wrap:wrap;row-gap:8px;align-items:center;gap:10px;padding:11px 14px;border-top:1px solid #f0f5f8}
-.refRow:first-child{border-top:0}
+/* שורת חלל בבדיקה המפורטת (מפקח): שם + אישור + הערה, הכל בשורה אחת */
+.refRow{display:flex;flex-wrap:wrap;row-gap:8px;align-items:center;gap:10px;padding:12px 14px}
+.refRow .nm{font-weight:600;flex:1;min-width:120px}
+
+/* כפתורי סימון מהיר לרפרנט */
+.dayBtn{padding:16px 20px;border-radius:12px;font-weight:700;font-size:15.5px;flex:1;min-width:160px;
+  border:2px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;transition:.15s}
+.dayBtn:hover{border-color:var(--brand)}
+.dayBtn.clean.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.dayBtn.dirty.on{background:var(--bad);border-color:var(--bad);color:#fff}
+
+/* חלל עם משימה מיוחדת היום (רשימת "תכנית היום" לרפרנט) */
+.spaceRow{display:flex;flex-wrap:wrap;row-gap:6px;align-items:center;gap:10px;padding:12px 14px}
+.spaceRow .nm{font-weight:600;flex:1;min-width:120px}
+.extraBadge{font-size:11.5px;color:#fff;background:var(--warn);border-radius:99px;padding:2px 9px;font-weight:700;white-space:nowrap}
+.extraTask{font-size:12.5px;color:var(--muted);flex-basis:100%;padding-right:33px}
 
 /* סרגל החלל: טאבים לחללים זהים + סימון קבוצתי */
 .gbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 13px;
@@ -144,7 +155,7 @@ h3{font-size:15px;margin:0 0 8px;font-weight:700}
 .box{width:23px;height:23px;border:2px solid #c3d3de;border-radius:6px;flex:none;display:flex;
   align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;margin-top:1px;transition:.15s}
 .task.on .box{background:var(--ok);border-color:var(--ok)}
-.elemH .box.on{background:var(--ok);border-color:var(--ok)}
+.box.on{background:var(--ok);border-color:var(--ok)}
 .task.on .lbl{text-decoration:line-through;color:var(--muted)}
 .task .lbl{flex:1}
 .badge{font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600;white-space:nowrap;flex:none;margin-top:2px}
@@ -250,6 +261,8 @@ tr.detail td{background:#f8fbfd}
 .phead .pmeta b{font-size:13pt}
 .psum{background:#f0f0f0;border:1px solid #bbb;padding:6px 10px;font-size:9.5pt;margin-bottom:11px}
 .pnote{border:2px solid #000;padding:14px;text-align:center;font-size:13pt;font-weight:700;margin:22px 0}
+.pextra{border:2px solid #000;padding:10px 14px;font-size:10.5pt;margin-bottom:11px;text-align:right;line-height:1.6}
+.pextra b{font-size:11.5pt}
 .pgrp{margin-bottom:13px;page-break-inside:avoid}
 .pgrp > h3{font-size:11.5pt;font-weight:700;margin:0 0 5px;background:#e4e4e4;
   border-right:4px solid #000;padding:4px 9px}
@@ -382,6 +395,10 @@ table.pt td.psp{font-weight:700;background:#f7f7f7}
 
   <!-- ============ REFERENT ============ -->
   <div id="vRef" class="hide">
+    <div class="tabs">
+      <button class="tab on" onclick="refTabSwitch('status',this)">מצב יומי</button>
+      <button class="tab" onclick="refTabSwitch('plan',this)">תכנית היום</button>
+    </div>
     <div class="card">
       <div class="dayhead">
         <button class="navbtn" onclick="shiftDay(-1)" title="היום הקודם" aria-label="היום הקודם">
@@ -395,34 +412,46 @@ table.pt td.psp{font-weight:700;background:#f7f7f7}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
         </button>
         <div style="flex:1"></div>
-        <button class="btn g sm" onclick="printRefDay()">🖨 הדפסה / PDF</button>
+        <button class="btn g sm hide" id="btnPrintRefPlan" onclick="printRefPlan()">🖨 הדפסה / PDF</button>
         <button class="btn g sm" onclick="setDay(todayStr())">היום</button>
       </div>
       <div id="rfClosed"></div>
-      <div id="rfProgWrap">
-        <div class="prog"><i id="rfBar" style="width:0%"></i></div>
-        <div class="progtxt"><span id="rfTxt"></span><span id="rfPct"></span></div>
-      </div>
-      <div class="note" id="rfStatus" style="margin-top:10px"></div>
-      <div class="row" id="rfActions" style="margin:0">
-        <button class="btn g sm" id="btnRefAll" onclick="markAllApprove()">אישור כל החללים</button>
-        <button class="btn sm" onclick="submitReview()">📨 שליחה לאישור</button>
-        <button class="btn g sm" style="border-color:var(--bad);color:var(--bad)" onclick="reportNotCleaned()">⚠ דיווח: הסניף לא נוקה היום</button>
-      </div>
-      <div class="row" id="rfTaskRow" style="margin-top:10px">
-        <div style="flex:1;min-width:220px"><label class="f">פנייה חד-פעמית למפקח</label>
-          <input type="text" id="rfTaskText" placeholder="לדוגמה: לתקן ברז דולף במטבחון" style="width:100%"></div>
-        <button class="btn g sm" onclick="addRefTask()">➕ שליחת בקשה</button>
-      </div>
-      <div id="rfTasks"></div>
     </div>
-    <div id="rfList"></div>
+
+    <!-- ---- טאב: מצב יומי ---- -->
+    <div id="refStatusTab">
+      <div class="card">
+        <h2>מצב הניקיון היום</h2>
+        <p class="sub">סמנו במהירות האם הניקיון בוצע היום. אין צורך לעבור חלל-חלל — המפקח יבצע בדיקה מפורטת בביקור השבועי.</p>
+        <div class="row" style="margin:0">
+          <button class="dayBtn clean" id="btnDayClean" onclick="quickMark(true)">✓ נוקה היום</button>
+          <button class="dayBtn dirty" id="btnDayDirty" onclick="quickMark(false)">✗ לא נוקה היום</button>
+        </div>
+        <div class="note" id="rfQuickStatus" style="margin-top:12px"></div>
+      </div>
+      <div class="card">
+        <h2>הודעה למפקח</h2>
+        <p class="sub">אפשר לשלוח הודעה או בקשה חד-פעמית למפקח בכל עת.</p>
+        <div class="row" style="margin:0">
+          <div style="flex:1;min-width:220px"><input type="text" id="rfTaskText" placeholder="לדוגמה: לתקן ברז דולף במטבחון" style="width:100%"></div>
+          <button class="btn g sm" onclick="addRefTask()">➕ שליחה</button>
+        </div>
+        <div id="rfTasks"></div>
+      </div>
+    </div>
+
+    <!-- ---- טאב: תכנית היום ---- -->
+    <div id="refPlanTab" class="hide">
+      <div class="note blue" id="rfExtra" style="margin-bottom:14px"></div>
+      <div id="rfPlanList"></div>
+    </div>
   </div>
 
   <!-- ============ SUPERVISOR ============ -->
   <div id="vSup" class="hide">
     <div class="tabs">
       <button class="tab on" onclick="supTab('dash',this)">לוח בקרה</button>
+      <button class="tab" onclick="supTab('insp',this)">ביקורת שבועית</button>
       <button class="tab" onclick="supTab('plan',this)">תכנית עבודה</button>
       <button class="tab" onclick="supTab('days',this)">ימים ללא עבודה</button>
       <button class="tab" onclick="supTab('rep',this)">דוחות</button>
@@ -453,6 +482,32 @@ table.pt td.psp{font-weight:700;background:#f7f7f7}
         <h2>14 הימים האחרונים</h2>
         <div class="scroll"><table id="dHist"></table></div>
       </div>
+    </div>
+
+    <div id="tInsp" class="hide">
+      <div class="card">
+        <h2>ביקורת שבועית</h2>
+        <p class="sub">בדיקה מפורטת חלל-חלל, בדרך כלל פעם בשבוע. אשרו כל חלל שנוקה כראוי, והוסיפו הערה מהדרופדאון אם יש בעיה. הניקוד המחושב כאן הוא זה שיוצג בלוח הבקרה.</p>
+        <div class="dayhead">
+          <div><label class="f">אתר</label><select id="inspSite" onchange="renderInsp()"></select></div>
+          <div><label class="f">תאריך הביקורת</label><input type="date" id="inspDate" onchange="renderInsp()"></div>
+          <div style="flex:1"></div>
+          <button class="btn g sm" onclick="printInsp()">🖨 הדפסה / PDF</button>
+          <button class="btn g sm" onclick="document.getElementById('inspDate').value=todayStr();renderInsp()">היום</button>
+        </div>
+        <div id="inspClosed"></div>
+        <div id="inspProgWrap">
+          <div class="prog"><i id="inspBar" style="width:0%"></i></div>
+          <div class="progtxt"><span id="inspTxt"></span><span id="inspPct"></span></div>
+        </div>
+        <div class="note" id="inspStatus" style="margin-top:10px"></div>
+        <div class="row" id="inspActions" style="margin:10px 0 0">
+          <button class="btn g sm" id="btnInspAll" onclick="markAllApproveInsp()">אישור כל החללים</button>
+          <button class="btn sm" onclick="submitInsp()">✔ סיום בדיקה</button>
+          <button class="btn g sm" style="border-color:var(--bad);color:var(--bad)" onclick="reportNotCleanedInsp()">⚠ דיווח: הסניף לא נוקה ביום זה</button>
+        </div>
+      </div>
+      <div id="inspList"></div>
     </div>
 
     <div id="tPlan" class="hide">
@@ -764,8 +819,9 @@ function markTaskDone(si, day, ti){
 }
 function refScore(siteIdx, s){
   const rv=getReview(siteIdx,s);
-  if(!rv || !rv.submitted) return null;
+  if(!rv) return null;
   if(rv.notCleaned) return 0;
+  if(!rv.submitted) return null;
   const neg=Object.values(rv.comments).filter(c=>c).length;
   return Math.max(0, 100 - neg*REF_DEDUCTION);
 }
@@ -1172,7 +1228,13 @@ function finishDay(){
 }
 
 /* ---------- REFERENT ---------- */
-let curRefRows=[];
+let refTab='status';
+function refTabSwitch(t, btn){
+  refTab=t;
+  document.querySelectorAll('#vRef .tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderRef();
+}
 
 function renderRef(){
   const s=cur.day;
@@ -1182,56 +1244,46 @@ function renderRef(){
     + (s===todayStr()?' · <b>היום</b>':'')
     + (hol && !isOff(s) ? ` · <span style="color:var(--warn)">${hol.name}</span>` : '');
 
-  const closedBox=document.getElementById('rfClosed');
-  if(isOff(s)){
-    closedBox.innerHTML = dow(s)===6
-      ? `<div class="note blue"><b>אין עבודה בשבת</b></div>`
-      : `<div class="note red"><b>${offReason(s)} — אין עבודה היום</b></div>`;
-    document.getElementById('rfProgWrap').classList.add('hide');
-    document.getElementById('rfActions').classList.add('hide');
-    document.getElementById('rfTaskRow').classList.add('hide');
+  const closed=isOff(s);
+  document.getElementById('rfClosed').innerHTML = closed
+    ? (dow(s)===6 ? `<div class="note blue"><b>אין עבודה בשבת</b></div>`
+                  : `<div class="note red"><b>${offReason(s)} — אין עבודה היום</b></div>`)
+    : '';
+
+  document.getElementById('refStatusTab').classList.toggle('hide', closed || refTab!=='status');
+  document.getElementById('refPlanTab').classList.toggle('hide', closed || refTab!=='plan');
+  document.getElementById('btnPrintRefPlan').classList.toggle('hide', closed || refTab!=='plan');
+
+  if(closed){
     document.getElementById('rfTasks').innerHTML='';
-    document.getElementById('rfList').innerHTML='';
-    document.getElementById('rfStatus').innerHTML='';
+    document.getElementById('rfPlanList').innerHTML='';
+    document.getElementById('rfExtra').innerHTML='';
     return;
   }
-  closedBox.innerHTML='';
-  document.getElementById('rfProgWrap').classList.remove('hide');
-  document.getElementById('rfActions').classList.remove('hide');
-  document.getElementById('rfTaskRow').classList.remove('hide');
 
-  const groups = groupPlan(cur.site, s);
-  curRefRows = groups.flatMap(g => g.els.map(e => ({space:g.space, code:e.code, ei:e.ei})));
-  const rv = ensureReview(cur.site, s);
+  renderRefStatusTab();
+  renderRefPlanTab();
+}
 
-  let ri=0;
-  const html = groups.map(g=>{
-    const rows = g.els.map(e=>{
-      const idx = ri++;
-      const approved = !!rv.approvals[e.ei];
-      const comment = rv.comments[e.ei] || '';
-      return `<div class="refRow">
-        <span class="box ${approved?'on':''}" onclick="toggleApprove(${idx})">✓</span>
-        <span class="code">${e.code}</span>
-        <select class="refSel ${comment?'flag':''}" onchange="setComment(${idx}, this.value)">
-          ${REF_COMMENTS.map(c=>`<option value="${c.v}" ${c.v===comment?'selected':''}>${c.label}</option>`).join('')}
-        </select>
-        ${comment==='other' ? `<input type="text" class="refText" placeholder="פרטו את ההערה..." value="${esc((rv.commentText||{})[e.ei]||'')}" oninput="setCommentText(${idx}, this.value)">` : ''}
-      </div>`;
-    }).join('');
-    return `<div class="refGroup">
-      <div class="refGroupHead">
-        <span>${esc(g.space)}</span>
-        ${g.els.length>1?`<span class="multi">${g.els.length} חללים</span>`:''}
-      </div>
-      ${rows}
-    </div>`;
-  }).join('');
-
-  document.getElementById('rfList').innerHTML = html || `<div class="card empty"><div class="ic">✨</div>אין חללים מתוזמנים ליום זה</div>`;
-  updateRefProg();
-  renderRefStatus();
+/* ---- טאב מצב יומי: סימון מהיר + הודעה למפקח ---- */
+function renderRefStatusTab(){
+  const rv=getReview(cur.site,cur.day);
+  const marked = rv && rv.dailyMarkedAt;
+  document.getElementById('btnDayClean').classList.toggle('on', !!(marked && !rv.notCleaned));
+  document.getElementById('btnDayDirty').classList.toggle('on', !!(marked && rv.notCleaned));
+  const box=document.getElementById('rfQuickStatus');
+  if(!marked){ box.className='note'; box.innerHTML='טרם סומן היום.'; }
+  else if(rv.notCleaned){ box.className='note red'; box.innerHTML=`<b>סומן: לא נוקה היום</b> · ${new Date(rv.dailyMarkedAt).toLocaleString('he-IL')}`; }
+  else { box.className='note blue'; box.innerHTML=`<b>סומן: נוקה היום</b> · ${new Date(rv.dailyMarkedAt).toLocaleString('he-IL')}`; }
   renderRefTasks();
+}
+function quickMark(clean){
+  const rv=ensureReview(cur.site,cur.day);
+  rv.notCleaned=!clean;
+  rv.dailyMarkedAt=new Date().toISOString();
+  save();
+  renderRefStatusTab();
+  toast(clean?'סומן כנוקה היום':'סומן כלא נוקה היום');
 }
 function renderRefTasks(){
   const box=document.getElementById('rfTasks');
@@ -1252,71 +1304,159 @@ function addRefTask(){
   rv.tasks.push({text, at:new Date().toISOString(), done:false});
   save();
   inp.value='';
-  toast('הבקשה נשלחה למפקח');
+  toast('ההודעה נשלחה למפקח');
   renderRefTasks();
 }
 
-function toggleApprove(ri){
-  const e=curRefRows[ri];
+/* ---- טאב תכנית היום: תצוגה בלבד + הדפסה, עם הדגשת משימות מיוחדות ---- */
+function todaysExtraGroups(si, s){
+  const groups=groupPlan(si,s);
+  const extra=[];
+  groups.forEach(g=>{
+    const tasks=[];
+    g.els.forEach(e=>e.tasks.forEach(t=>{ if(t.freq!=='daily') tasks.push(t); }));
+    if(tasks.length) extra.push({space:g.space, codes:g.els.map(e=>e.code), tasks});
+  });
+  return {groups, extra};
+}
+function renderRefPlanTab(){
+  const {groups, extra} = todaysExtraGroups(cur.site, cur.day);
+
+  const extraBox=document.getElementById('rfExtra');
+  if(!extra.length){
+    extraBox.className='note blue';
+    extraBox.innerHTML='<b>אין משימות מיוחדות היום</b> — רק הניקיון השוטף הרגיל.';
+  } else {
+    extraBox.className='note';
+    extraBox.innerHTML = `<b>משימות מיוחדות היום</b><br>` + extra.map(g=>
+      `<div style="margin-top:8px"><b>${esc(g.space)}</b> <span style="color:var(--muted)">(${g.codes.join(', ')})</span><br>`
+      + g.tasks.map(t=>`<span class="badge ${FREQ_CLS[t.freq]}" style="margin-left:6px">${FREQ_HE[t.freq]}</span> ${esc(t.text)}`).join('<br>')
+      + `</div>`).join('');
+  }
+
+  const listHtml = groups.map(g=>{
+    const hasExtra = extra.some(eg=>eg.space===g.space);
+    return `<div class="elem">
+      <div class="spaceRow">
+        <span class="nm">${esc(g.space)}</span>
+        ${g.els.length>1?`<span class="multi">${g.els.length} חללים</span>`:''}
+        ${hasExtra?`<span class="extraBadge">משימה מיוחדת</span>`:''}
+        <span style="color:var(--muted);font-size:12.5px">${g.els.map(e=>e.code).join(', ')}</span>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('rfPlanList').innerHTML = listHtml || `<div class="card empty"><div class="ic">✨</div>אין חללים מתוזמנים ליום זה</div>`;
+}
+function printRefPlan(){ doPrint(printPlanSheet(cur.site, cur.day)); }
+
+/* ---------- SUPERVISOR: ביקורת שבועית ---------- */
+let curInspRows=[];
+function inspSiteVal(){ return +document.getElementById('inspSite').value; }
+function inspDayVal(){ return document.getElementById('inspDate').value || todayStr(); }
+
+function renderInsp(){
+  const si=inspSiteVal(), s=inspDayVal();
+  const closedBox=document.getElementById('inspClosed');
+  if(isOff(s)){
+    closedBox.innerHTML = dow(s)===6
+      ? `<div class="note blue"><b>אין עבודה בשבת</b></div>`
+      : `<div class="note red"><b>${offReason(s)} — אין עבודה היום</b></div>`;
+    document.getElementById('inspProgWrap').classList.add('hide');
+    document.getElementById('inspActions').classList.add('hide');
+    document.getElementById('inspList').innerHTML='';
+    document.getElementById('inspStatus').innerHTML='';
+    return;
+  }
+  closedBox.innerHTML='';
+  document.getElementById('inspProgWrap').classList.remove('hide');
+  document.getElementById('inspActions').classList.remove('hide');
+
+  const groups=groupPlan(si,s);
+  curInspRows = groups.flatMap(g=>g.els.map(e=>({space:g.space, code:e.code, ei:e.ei})));
+  const rv=ensureReview(si,s);
+
+  const html = curInspRows.map((e,ri)=>{
+    const approved=!!rv.approvals[e.ei];
+    const comment=rv.comments[e.ei]||'';
+    return `<div class="elem">
+      <div class="refRow">
+        <span class="box ${approved?'on':''}" onclick="toggleApproveInsp(${ri})">✓</span>
+        <span class="code">${e.code}</span>
+        <span class="nm">${esc(e.space)}</span>
+        <select class="refSel ${comment?'flag':''}" onchange="setCommentInsp(${ri}, this.value)">
+          ${REF_COMMENTS.map(c=>`<option value="${c.v}" ${c.v===comment?'selected':''}>${c.label}</option>`).join('')}
+        </select>
+        ${comment==='other' ? `<input type="text" class="refText" placeholder="פרטו את ההערה..." value="${esc((rv.commentText||{})[e.ei]||'')}" oninput="setCommentTextInsp(${ri}, this.value)">` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('inspList').innerHTML = html || `<div class="card empty"><div class="ic">✨</div>אין חללים מתוזמנים ליום זה</div>`;
+  updateInspProg();
+  renderInspStatus();
+}
+function toggleApproveInsp(ri){
+  const e=curInspRows[ri];
   if(!e) return;
-  const rv=ensureReview(cur.site,cur.day);
+  const rv=ensureReview(inspSiteVal(), inspDayVal());
   rv.approvals[e.ei]=!rv.approvals[e.ei];
   save();
-  renderRef();
+  renderInsp();
 }
-function setComment(ri, val){
-  const e=curRefRows[ri];
+function setCommentInsp(ri, val){
+  const e=curInspRows[ri];
   if(!e) return;
-  const rv=ensureReview(cur.site,cur.day);
+  const rv=ensureReview(inspSiteVal(), inspDayVal());
   if(val) rv.comments[e.ei]=val; else delete rv.comments[e.ei];
   if(val!=='other') delete rv.commentText[e.ei];
   save();
-  renderRef();
+  renderInsp();
 }
-function setCommentText(ri, text){
-  const e=curRefRows[ri];
+function setCommentTextInsp(ri, text){
+  const e=curInspRows[ri];
   if(!e) return;
-  const rv=ensureReview(cur.site,cur.day);
+  const rv=ensureReview(inspSiteVal(), inspDayVal());
   rv.commentText[e.ei]=text;
   save();
 }
-function reportNotCleaned(){
-  const rv=ensureReview(cur.site,cur.day);
-  const msg = rv.notCleaned ? 'לבטל את הדיווח שהסניף לא נוקה ביום זה?' : 'לדווח שהסניף לא נוקה כלל ביום זה? הניקוד לאותו יום יאופס אצל המפקח.';
+function markAllApproveInsp(){
+  if(!curInspRows.length) return;
+  const rv=ensureReview(inspSiteVal(), inspDayVal());
+  const allOn = curInspRows.every(e=>rv.approvals[e.ei]);
+  curInspRows.forEach(e=>{ rv.approvals[e.ei]=!allOn; });
+  save();
+  renderInsp();
+}
+function reportNotCleanedInsp(){
+  const rv=ensureReview(inspSiteVal(), inspDayVal());
+  const msg = rv.notCleaned ? 'לבטל את הדיווח שהסניף לא נוקה ביום זה?' : 'לדווח שהסניף לא נוקה כלל ביום זה? הניקוד לאותו יום יאופס.';
   if(!confirm(msg)) return;
   rv.notCleaned=!rv.notCleaned;
   save();
-  renderRefStatus();
-  toast(rv.notCleaned ? 'הדיווח נשלח' : 'הדיווח בוטל');
+  renderInspStatus();
+  renderDash();
+  toast(rv.notCleaned ? 'הדיווח נשמר' : 'הדיווח בוטל');
 }
-function submitReview(){
-  const rv=ensureReview(cur.site,cur.day);
+function submitInsp(){
+  const rv=ensureReview(inspSiteVal(), inspDayVal());
   rv.submitted=true; rv.submittedAt=new Date().toISOString();
   save();
-  toast('הבדיקה נשלחה לאישור המפקח');
-  renderRefStatus();
+  toast('הבדיקה נשמרה');
+  renderInspStatus();
+  renderDash();
 }
-function markAllApprove(){
-  if(!curRefRows.length) return;
-  const rv=ensureReview(cur.site,cur.day);
-  const allOn = curRefRows.every(e=>rv.approvals[e.ei]);
-  curRefRows.forEach(e=>{ rv.approvals[e.ei]=!allOn; });
-  save();
-  renderRef();
-}
-function updateRefProg(){
-  const rv=getReview(cur.site,cur.day);
-  const tot=curRefRows.length;
-  const dn=curRefRows.filter(e=>rv && rv.approvals[e.ei]).length;
+function updateInspProg(){
+  const rv=getReview(inspSiteVal(), inspDayVal());
+  const tot=curInspRows.length;
+  const dn=curInspRows.filter(e=>rv && rv.approvals[e.ei]).length;
   const pct= tot? Math.round(dn/tot*100):0;
-  document.getElementById('rfBar').style.width=pct+'%';
-  document.getElementById('rfTxt').textContent=`אושרו ${dn} מתוך ${tot} חללים`;
-  document.getElementById('rfPct').textContent=pct+'%';
-  document.getElementById('btnRefAll').textContent = (tot && dn===tot) ? 'ביטול אישור הכל' : 'אישור כל החללים';
+  document.getElementById('inspBar').style.width=pct+'%';
+  document.getElementById('inspTxt').textContent=`אושרו ${dn} מתוך ${tot} חללים`;
+  document.getElementById('inspPct').textContent=pct+'%';
+  document.getElementById('btnInspAll').textContent = (tot && dn===tot) ? 'ביטול אישור הכל' : 'אישור כל החללים';
 }
-function renderRefStatus(){
-  const rv=getReview(cur.site,cur.day);
-  const box=document.getElementById('rfStatus');
+function renderInspStatus(){
+  const rv=getReview(inspSiteVal(), inspDayVal());
+  const box=document.getElementById('inspStatus');
   if(!box) return;
   if(!rv || (!rv.submitted && !rv.notCleaned && !Object.keys(rv.comments).length && !Object.keys(rv.approvals).length)){
     box.className='note';
@@ -1330,17 +1470,17 @@ function renderRefStatus(){
     box.innerHTML=`<b>דווח: הסניף לא נוקה ביום זה</b> · ניקוד: 0`;
   } else if(rv.submitted){
     box.className='note blue';
-    box.innerHTML=`<b>נשלח לאישור המפקח</b> · ${new Date(rv.submittedAt).toLocaleString('he-IL')} · ניקוד: ${draftScore}`;
+    box.innerHTML=`<b>הבדיקה הושלמה</b> · ${new Date(rv.submittedAt).toLocaleString('he-IL')} · ניקוד: ${draftScore}`;
   } else {
     box.className='note';
-    box.innerHTML=`טיוטה (טרם נשלחה לאישור) ${neg?'· '+neg+' הערות פתוחות ':''}· ניקוד משוער: ${draftScore}`;
+    box.innerHTML=`טיוטה (הבדיקה טרם הושלמה) ${neg?'· '+neg+' הערות פתוחות ':''}· ניקוד משוער: ${draftScore}`;
   }
 }
-function printRefDay(){ doPrint(printSpacesSheet(cur.site, cur.day)); }
+function printInsp(){ doPrint(printSpacesSheet(inspSiteVal(), inspDayVal())); }
 
 /* ---------- SUPERVISOR ---------- */
 function initSup(){
-  ['pSite','rSite'].forEach(id=>{
+  ['pSite','rSite','inspSite'].forEach(id=>{
     document.getElementById(id).innerHTML = DATA.sites.map((s,i)=>`<option value="${i}" ${i===cur.site?'selected':''}>${s.name}</option>`).join('');
   });
   document.getElementById('prSite').innerHTML = '<option value="*">כל האתרים</option>' +
@@ -1349,11 +1489,13 @@ function initSup(){
   document.getElementById('rTo').value = todayStr();
   document.getElementById('rFrom').value = addDays(todayStr(),-30);
   document.getElementById('offDate').value = todayStr();
+  if(!document.getElementById('inspDate').value) document.getElementById('inspDate').value = todayStr();
   DATA.sites.forEach((s,i)=>ensurePlan(i));
   renderDash(); renderPlan(); renderOff(); renderRep();
 }
 function supTab(t,btn){
-  ['dash','plan','days','rep'].forEach(x=>document.getElementById('t'+x[0].toUpperCase()+x.slice(1)).classList.toggle('hide',x!==t));
+  ['dash','insp','plan','days','rep'].forEach(x=>document.getElementById('t'+x[0].toUpperCase()+x.slice(1)).classList.toggle('hide',x!==t));
+  if(t==='insp') renderInsp();
   document.querySelectorAll('#vSup .tab').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
 }
@@ -1887,6 +2029,45 @@ function printSpacesSheet(si, day){
     ).join('')}</tbody></table>`;
 
   return `<div class="psheet">${head}${sum}${tbl}</div>`;
+}
+
+/* גיליון "תכנית היום" לרפרנט: מדגיש משימות מיוחדות (לא-יומיות) שנופלות היום */
+function printPlanSheet(si, day){
+  const site=DATA.sites[si];
+  const hol=getHoliday(day);
+
+  const head=`<div class="phead">
+      <div>
+        <div class="pt1">תכנית ניקוי להיום</div>
+        <div class="pt2">עזר מציון · ${esc(site.city)} · ${esc(site.address)}</div>
+      </div>
+      <div class="pmeta">
+        <b>יום ${DAYS_HE[dow(day)]} · ${heDate(day)}</b><br>
+        ${hebDateStr(day)}${hol?' · '+esc(hol.name):''}
+      </div>
+    </div>`;
+
+  if(isOff(day)){
+    return `<div class="psheet">${head}<div class="pnote">
+      ${dow(day)===6?'אין עבודה בשבת':esc(offReason(day))+' — אין עבודה היום'}
+    </div></div>`;
+  }
+
+  const {groups, extra} = todaysExtraGroups(si, day);
+  if(!groups.length) return `<div class="psheet">${head}<div class="pnote">אין חללים מתוזמנים ליום זה</div></div>`;
+
+  const extraHtml = extra.length
+    ? `<div class="pextra"><b>משימות מיוחדות היום:</b><br>` + extra.map(g=>
+        `• <b>${esc(g.space)}</b> (${g.codes.join(', ')}): ${g.tasks.map(t=>esc(t.text)+' — '+FREQ_HE[t.freq]).join(', ')}`
+      ).join('<br>') + `</div>`
+    : `<div class="psum">אין משימות מיוחדות היום — ניקיון שוטף רגיל.</div>`;
+
+  const tbl = `<table class="pt"><tbody>${groups.map(g=>{
+      const hasExtra = extra.some(eg=>eg.space===g.space);
+      return `<tr><td class="pf">${g.els.map(e=>e.code).join(', ')}</td><td>${esc(g.space)}${hasExtra?' <b>(משימה מיוחדת היום)</b>':''}</td></tr>`;
+    }).join('')}</tbody></table>`;
+
+  return `<div class="psheet">${head}${extraHtml}${tbl}</div>`;
 }
 
 function doPrint(sheets){
